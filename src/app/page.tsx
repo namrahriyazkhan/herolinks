@@ -7,6 +7,7 @@ import { Footer } from "@/components/layout/Footer";
 import { useApp } from "@/lib/store/app-context";
 import { AuthModal } from "@/components/modals/AuthModal";
 import { DirectDonationModal } from "@/components/modals/DirectDonationModal";
+import { DrawMachine } from "@/components/draw/DrawMachine";
 import {
   Sparkles,
   Heart,
@@ -20,26 +21,37 @@ import {
   Compass,
   Calendar,
   Layers,
+  Flame,
+  Check,
+  Play,
+  RotateCcw,
 } from "lucide-react";
 
 export default function HomePage() {
-  const { stats, charities, activeJackpot, latestPublishedDraw } = useApp();
+  const { stats, charities, activeJackpot, latestPublishedDraw, userScores } = useApp();
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authDefaultTab, setAuthDefaultTab] = useState<"login" | "signup">("signup");
   const [donateModalOpen, setDonateModalOpen] = useState(false);
 
-  // Interactive Calculator State
-  const [calcTier, setCalcTier] = useState<"monthly" | "yearly">("monthly");
-  const [calcCharityPercent, setCalcCharityPercent] = useState<number>(20);
+  // Dynamic Subscriber Scale Slider for Prize Pool Simulator
+  const [simulatedSubscribers, setSimulatedSubscribers] = useState(1850);
+  const [simulatedCharityPercent, setSimulatedCharityPercent] = useState(15);
+  const [simulatedPlan, setSimulatedPlan] = useState<"monthly" | "yearly">("monthly");
 
-  const calculatedMonthlyFee = calcTier === "yearly" ? 12.5 : 15.0;
-  const calculatedCharityAnnual = (calculatedMonthlyFee * (calcCharityPercent / 100) * 12).toFixed(2);
-  const calculatedPrizeAnnual = (calculatedMonthlyFee * 0.5 * 12).toFixed(2);
+  // Calculations based on PRD § 06 & § 07 (50% prize pool portion, 40/35/25 split)
+  const fee = simulatedPlan === "yearly" ? 12.5 : 15.0;
+  const monthlyRevenue = simulatedSubscribers * fee;
+  const totalPrizeFund = monthlyRevenue * 0.5;
+  const rolloverIn = 3720;
+  const tier1Total = totalPrizeFund * 0.4 + rolloverIn;
+  const tier2Total = totalPrizeFund * 0.35;
+  const tier3Total = totalPrizeFund * 0.25;
+  const monthlyCharityFund = monthlyRevenue * (simulatedCharityPercent / 100);
 
   const featuredCharities = charities.filter((c) => c.featured);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF7F2]">
+    <div className="min-h-screen flex flex-col bg-[#FAF7F2] text-[#121F1A]">
       <Navbar
         onOpenAuth={(tab) => {
           setAuthDefaultTab(tab);
@@ -48,27 +60,36 @@ export default function HomePage() {
         onOpenDonate={() => setDonateModalOpen(true)}
       />
 
-      <main className="flex-1">
+      <main className="flex-1 space-y-20 md:space-y-32">
         {/* ========================================================================= */}
-        {/* HERO SECTION: Editorial High-Concept Narrative (§ 10 & § 12) */}
+        {/* EDITORIAL MASTHEAD & HERO (§ 00, § 01 & § 12) */}
         {/* ========================================================================= */}
-        <section className="relative px-4 sm:px-6 lg:px-8 pt-12 pb-20 md:pt-20 md:pb-32 overflow-hidden border-b border-[#E8DEC0]/80">
-          <div className="max-w-7xl mx-auto">
-            {/* Top metadata badge */}
-            <div className="flex flex-wrap items-center gap-3 mb-6">
-              <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#143A2F]/10 text-[#143A2F] text-xs font-semibold tracking-wide border border-[#143A2F]/20">
-                <span className="w-2 h-2 rounded-full bg-[#C88D34] animate-pulse"></span>
-                The 2026 Golf Charity Initiative
-              </span>
-              <span className="text-xs text-[#748780] font-mono">
-                PRD Edition 2026 · digitalheroes.co.in
-              </span>
+        <section className="relative px-4 sm:px-6 lg:px-8 pt-10 pb-16 md:pt-16 md:pb-24 border-b border-[#E8DEC0]/80">
+          <div className="max-w-7xl mx-auto space-y-10">
+            {/* Magazine Edition Header Bar */}
+            <div className="flex flex-wrap items-center justify-between border-b border-[#E8DEC0] pb-3 text-xs font-mono text-[#748780] gap-2">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-[#0D261E]">§ 00 · DIGITAL HEROES</span>
+                <span>•</span>
+                <span>LEVEL 1 SPECIFICATION</span>
+                <span>•</span>
+                <span className="text-[#C88D34] font-semibold">EDITION 2026</span>
+              </div>
+              <div className="flex items-center gap-4">
+                <span>DIGITALHEROES.CO.IN</span>
+                <span className="hidden sm:inline">VERSION 1.0</span>
+              </div>
             </div>
 
+            {/* Hero Main Presentation */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-              {/* Left Column: Provocative Editorial Manifesto */}
               <div className="lg:col-span-7 space-y-6">
-                <h1 className="font-serif italic text-4xl sm:text-6xl lg:text-7xl font-normal tracking-tight text-[#0D261E] leading-[1.08]">
+                <div className="inline-flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-[#143A2F]/10 border border-[#143A2F]/20 text-[#143A2F] text-xs font-semibold">
+                  <span className="w-2 h-2 rounded-full bg-[#C88D34] animate-pulse"></span>
+                  <span>March Major Charity Draw Open · Closes in 4 Days</span>
+                </div>
+
+                <h1 className="font-serif italic text-5xl sm:text-7xl lg:text-8xl font-normal tracking-tight text-[#0D261E] leading-[1.02]">
                   Your swing. <br />
                   <span className="font-sans font-black not-italic text-[#143A2F]">
                     Their future.
@@ -76,120 +97,131 @@ export default function HomePage() {
                 </h1>
 
                 <p className="text-lg sm:text-xl text-[#485953] max-w-xl font-normal leading-relaxed">
-                  A modern golf performance platform transforming your regular Stableford
-                  scores into monthly transparent prize draws while funding vetted youth, medical,
-                  and environmental charities.
+                  A golf performance and charity draw platform uniting golfers through monthly
+                  lottery-style prize pools, rolling Stableford scores, and direct community giving.
                 </p>
 
-                {/* CTAs */}
+                {/* Primary Actions */}
                 <div className="flex flex-wrap items-center gap-4 pt-2">
                   <button
                     onClick={() => {
                       setAuthDefaultTab("signup");
                       setAuthModalOpen(true);
                     }}
-                    className="inline-flex items-center gap-2 px-7 py-4 bg-[#143A2F] hover:bg-[#0D261E] text-white font-semibold rounded-2xl text-base shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5"
+                    className="inline-flex items-center gap-2 px-8 py-4 bg-[#143A2F] hover:bg-[#0D261E] text-white font-semibold rounded-2xl text-base shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-0.5"
                   >
                     <span>Subscribe & Nominate Cause</span>
                     <ArrowRight className="w-4 h-4 text-[#E8C28A]" />
                   </button>
 
                   <Link
-                    href="/charities"
+                    href="/dashboard"
                     className="inline-flex items-center gap-2 px-6 py-4 bg-white hover:bg-[#F3ECE2] text-[#0D261E] font-semibold rounded-2xl text-base border border-[#E8DEC0] shadow-sm transition-all"
                   >
-                    <Heart className="w-4 h-4 text-[#C88D34]" />
-                    <span>Explore Vetted Charities</span>
+                    <Trophy className="w-4 h-4 text-[#C88D34]" />
+                    <span>Golfer Portal (§ 10)</span>
                   </Link>
                 </div>
 
-                {/* Live Platform Proof Counters (§ 11.05) */}
-                <div className="grid grid-cols-3 gap-4 pt-6 border-t border-[#E8DEC0]/80">
+                {/* Live Impact Counters (§ 11.05) */}
+                <div className="grid grid-cols-3 gap-6 pt-8 border-t border-[#E8DEC0]">
                   <div>
-                    <span className="text-[10px] uppercase font-mono tracking-wider text-[#748780] block">
-                      Charity Impact
+                    <span className="text-[10px] font-mono uppercase text-[#748780] block">
+                      Charity Raised
                     </span>
-                    <div className="font-serif italic text-2xl sm:text-3xl font-bold text-[#143A2F]">
+                    <div className="font-serif italic text-2xl sm:text-4xl font-bold text-[#143A2F]">
                       £{stats.total_raised_charity.toLocaleString("en-GB")}
                     </div>
-                    <span className="text-[11px] text-[#2E6E59] font-medium">100% audited pass-through</span>
+                    <span className="text-[11px] text-[#2E6E59] font-medium">100% verified</span>
                   </div>
 
                   <div>
-                    <span className="text-[10px] uppercase font-mono tracking-wider text-[#748780] block">
+                    <span className="text-[10px] font-mono uppercase text-[#748780] block">
                       Active Jackpot
                     </span>
-                    <div className="font-serif italic text-2xl sm:text-3xl font-bold text-[#C88D34]">
+                    <div className="font-serif italic text-2xl sm:text-4xl font-bold text-[#C88D34]">
                       £{activeJackpot.toLocaleString("en-GB")}
                     </div>
-                    <span className="text-[11px] text-[#C88D34] font-medium">5-match rollover ready</span>
+                    <span className="text-[11px] text-[#C88D34] font-medium">+ Rollover in Tier 1</span>
                   </div>
 
                   <div>
-                    <span className="text-[10px] uppercase font-mono tracking-wider text-[#748780] block">
+                    <span className="text-[10px] font-mono uppercase text-[#748780] block">
                       Active Golfers
                     </span>
-                    <div className="font-serif italic text-2xl sm:text-3xl font-bold text-[#0D261E]">
+                    <div className="font-serif italic text-2xl sm:text-4xl font-bold text-[#0D261E]">
                       {stats.active_subscribers.toLocaleString()}
                     </div>
-                    <span className="text-[11px] text-[#748780]">Submitting 5 scores</span>
+                    <span className="text-[11px] text-[#748780]">5 scores logged</span>
                   </div>
                 </div>
               </div>
 
-              {/* Right Column: Hero Visual Showcase */}
+              {/* Right Column: Hero Mascot Homage & Ticket Showcase */}
               <div className="lg:col-span-5 relative">
-                <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#E8DEC0] shadow-xl relative overflow-hidden">
-                  <div className="absolute top-0 right-0 bg-[#C88D34] text-[#0D261E] font-mono text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-bl-xl">
-                    PRD § 06 & § 07 Active
-                  </div>
+                <div className="bg-[#0D261E] text-white rounded-3xl p-8 border border-[#143A2F] shadow-2xl relative overflow-hidden space-y-6">
+                  {/* Decorative gold background circle */}
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-[#C88D34]/15 rounded-full blur-3xl pointer-events-none"></div>
 
-                  <span className="text-xs font-mono uppercase tracking-wider text-[#748780] block mb-2 font-semibold">
-                    March Major Draw Spotlight
-                  </span>
-
-                  <h3 className="font-serif italic text-2xl font-bold text-[#0D261E] mb-4">
-                    {latestPublishedDraw?.title || "Spring Equinox Draw"}
-                  </h3>
-
-                  {/* Lottery Balls Display */}
-                  <div className="flex gap-2.5 my-4">
-                    {(latestPublishedDraw?.winning_numbers || [29, 34, 36, 38, 41]).map((num) => (
-                      <div
-                        key={num}
-                        className="w-12 h-12 rounded-full bg-[#143A2F] text-white flex items-center justify-center font-serif text-xl font-black shadow-md border border-[#C88D34]"
-                      >
-                        {num}
+                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                    <div className="flex items-center gap-3">
+                      {/* Mascot Icon */}
+                      <div className="w-10 h-10 rounded-xl bg-[#143A2F] border border-[#C88D34]/40 flex items-center justify-center">
+                        <Sparkles className="w-5 h-5 text-[#E8C28A]" />
                       </div>
-                    ))}
+                      <div>
+                        <div className="font-serif italic font-bold text-lg text-[#FAF7F2]">
+                          Digital Heroes
+                        </div>
+                        <div className="text-[10px] font-mono text-[#E8C28A]">
+                          SAMPLE ASSIGNMENT · 2026
+                        </div>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-mono text-white/50 border border-white/10 px-2 py-0.5 rounded">
+                      01 / 14
+                    </span>
                   </div>
 
-                  {/* Pool breakdown summary */}
-                  <div className="space-y-2.5 pt-4 border-t border-[#E8DEC0] text-xs">
-                    <div className="flex justify-between items-center text-[#485953]">
-                      <span>40% Tier 1 (5-Match):</span>
-                      <strong className="text-[#0D261E] font-serif text-sm">
+                  <div className="space-y-3">
+                    <span className="text-xs font-mono uppercase tracking-widest text-[#E8C28A]">
+                      Published Winning Combination:
+                    </span>
+                    <div className="flex flex-wrap gap-2.5">
+                      {(latestPublishedDraw?.winning_numbers || [29, 34, 36, 38, 41]).map((num) => (
+                        <div
+                          key={num}
+                          className="w-12 h-12 rounded-full bg-[#FAF7F2] text-[#0D261E] flex items-center justify-center font-serif text-xl font-black shadow-md border-2 border-[#C88D34]"
+                        >
+                          {num}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-[#143A2F] border border-[#215444] space-y-2 text-xs">
+                    <div className="flex justify-between items-center text-white/80">
+                      <span>March Major Prize Pool:</span>
+                      <strong className="text-white font-serif text-sm">
+                        £{latestPublishedDraw?.total_prize_pool.toLocaleString("en-GB") || "14,370"}
+                      </strong>
+                    </div>
+                    <div className="flex justify-between items-center text-white/80">
+                      <span>5-Match Tier 1 Jackpot:</span>
+                      <strong className="text-[#E8C28A] font-serif text-sm">
                         £{latestPublishedDraw?.tier1_pool_share.toLocaleString("en-GB") || "7,980"}
                       </strong>
                     </div>
-                    <div className="flex justify-between items-center text-[#485953]">
-                      <span>35% Tier 2 (4-Match):</span>
-                      <strong className="text-[#0D261E] font-serif text-sm">
-                        £{latestPublishedDraw?.tier2_pool_share.toLocaleString("en-GB") || "3,727"}
-                      </strong>
-                    </div>
-                    <div className="flex justify-between items-center text-[#485953]">
-                      <span>25% Tier 3 (3-Match):</span>
-                      <strong className="text-[#0D261E] font-serif text-sm">
-                        £{latestPublishedDraw?.tier3_pool_share.toLocaleString("en-GB") || "2,662"}
-                      </strong>
+                    <div className="flex justify-between items-center text-white/60 text-[11px] pt-1 border-t border-white/10">
+                      <span>4-Match Payout: £1,863.75</span>
+                      <span>3-Match Payout: £1,331.25</span>
                     </div>
                   </div>
 
-                  <div className="mt-6 pt-4 border-t border-[#E8DEC0]">
+                  <div className="pt-2">
                     <Link
                       href="/dashboard"
-                      className="w-full py-3 bg-[#FAF7F2] hover:bg-[#F3ECE2] text-[#143A2F] font-semibold rounded-xl text-xs flex items-center justify-center gap-2 border border-[#E8DEC0] transition-colors"
+                      className="w-full py-3 bg-[#C88D34] hover:bg-[#E09F45] text-[#071712] font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition-all shadow-md"
                     >
                       <span>Check Your Active 5 Scores</span>
                       <ArrowRight className="w-3.5 h-3.5" />
@@ -202,182 +234,271 @@ export default function HomePage() {
         </section>
 
         {/* ========================================================================= */}
-        {/* HOW IT WORKS: 4-Step Narrative Flow (§ 01.1 & § 02) */}
+        {/* SIX CORE OBJECTIVES SHOWCASE (Direct from PRD Page 3, § 02) */}
         {/* ========================================================================= */}
-        <section id="how-it-works" className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-          <div className="text-center max-w-2xl mx-auto space-y-3 mb-16">
-            <span className="text-xs font-mono uppercase tracking-widest text-[#C88D34] font-semibold">
-              § 01.1 · The Mechanics
-            </span>
-            <h2 className="font-serif italic text-3xl sm:text-5xl font-normal text-[#0D261E]">
-              Simple to play. Profound in impact.
-            </h2>
-            <p className="text-sm sm:text-base text-[#485953]">
-              Four clear steps unite every swing with measurable social progress.
+        <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-12">
+          <div className="border-b border-[#E8DEC0] pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div className="space-y-2">
+              <span className="font-mono text-xs text-[#C88D34] uppercase tracking-wider font-semibold">
+                § 02 · CORE OBJECTIVES
+              </span>
+              <h2 className="font-serif italic text-4xl sm:text-5xl text-[#0D261E]">
+                Six core objectives. One owned platform.
+              </h2>
+            </div>
+            <p className="text-xs text-[#748780] font-mono max-w-xs">
+              Direct implementation of Section § 02 evaluation criteria.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="bg-white border border-[#E8DEC0] rounded-2xl p-6 shadow-sm space-y-4 hover:border-[#143A2F]/40 transition-all">
-              <div className="w-10 h-10 rounded-xl bg-[#143A2F] text-white flex items-center justify-center font-mono font-bold text-sm">
-                01
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="bg-white border border-[#E8DEC0] rounded-2xl p-6 shadow-sm space-y-3">
+              <div className="text-[10px] font-mono uppercase tracking-widest text-[#748780]">
+                ENGINE · 01
               </div>
-              <h3 className="font-serif italic text-xl font-bold text-[#0D261E]">
-                Subscribe & Nominate
+              <h3 className="font-serif italic text-2xl font-bold text-[#0D261E]">
+                Subscription System
               </h3>
               <p className="text-xs text-[#485953] leading-relaxed">
-                Join on a monthly or discounted annual plan. Choose which certified cause receives
-                at least 10% (up to 50%) of your membership fee.
+                Build a robust subscription and payment system supporting monthly (£15) and
+                discounted annual (£150) tiers with real-time entitlement checks (§ 04).
               </p>
-              <div className="text-[11px] font-mono text-[#C88D34]">PRD § 04 & § 08.1</div>
             </div>
 
-            <div className="bg-white border border-[#E8DEC0] rounded-2xl p-6 shadow-sm space-y-4 hover:border-[#143A2F]/40 transition-all">
-              <div className="w-10 h-10 rounded-xl bg-[#143A2F] text-white flex items-center justify-center font-mono font-bold text-sm">
-                02
+            <div className="bg-white border border-[#E8DEC0] rounded-2xl p-6 shadow-sm space-y-3">
+              <div className="text-[10px] font-mono uppercase tracking-widest text-[#748780]">
+                EXPERIENCE · 02
               </div>
-              <h3 className="font-serif italic text-xl font-bold text-[#0D261E]">
-                Log Rolling 5 Scores
+              <h3 className="font-serif italic text-2xl font-bold text-[#0D261E]">
+                Score Entry & Rolling 5
               </h3>
               <p className="text-xs text-[#485953] leading-relaxed">
-                Input your latest Stableford points (range 1–45) with competition dates. Our rolling
-                queue automatically maintains your five most recent rounds.
+                Simple, engaging score-entry flow. Stableford range 1–45, strict duplicate date
+                prevention, and automatic rolling queue replacing the oldest round (§ 05).
               </p>
-              <div className="text-[11px] font-mono text-[#C88D34]">PRD § 05 Rolling Logic</div>
             </div>
 
-            <div className="bg-white border border-[#E8DEC0] rounded-2xl p-6 shadow-sm space-y-4 hover:border-[#143A2F]/40 transition-all">
-              <div className="w-10 h-10 rounded-xl bg-[#143A2F] text-white flex items-center justify-center font-mono font-bold text-sm">
-                03
+            <div className="bg-white border border-[#E8DEC0] rounded-2xl p-6 shadow-sm space-y-3">
+              <div className="text-[10px] font-mono uppercase tracking-widest text-[#748780]">
+                ENGINE · 03
               </div>
-              <h3 className="font-serif italic text-xl font-bold text-[#0D261E]">
-                The Monthly Draw
+              <h3 className="font-serif italic text-2xl font-bold text-[#0D261E]">
+                Custom Draw Engine
               </h3>
               <p className="text-xs text-[#485953] leading-relaxed">
-                5 numbers are drawn monthly using certified algorithmic or random logic. Match 3, 4,
-                or 5 numbers to share the 25%, 35%, or 40% prize pool tiers.
+                Algorithm-powered or random monthly draws with automated 40/35/25 tier shares,
+                equal winner splits, and jackpot rollover carryover (§ 06 & § 07).
               </p>
-              <div className="text-[11px] font-mono text-[#C88D34]">PRD § 06 & § 07 Distribution</div>
             </div>
 
-            <div className="bg-white border border-[#E8DEC0] rounded-2xl p-6 shadow-sm space-y-4 hover:border-[#143A2F]/40 transition-all">
-              <div className="w-10 h-10 rounded-xl bg-[#143A2F] text-white flex items-center justify-center font-mono font-bold text-sm">
-                04
+            <div className="bg-white border border-[#E8DEC0] rounded-2xl p-6 shadow-sm space-y-3">
+              <div className="text-[10px] font-mono uppercase tracking-widest text-[#748780]">
+                INTEGRATION · 04
               </div>
-              <h3 className="font-serif italic text-xl font-bold text-[#0D261E]">
-                Verify & Disburse
+              <h3 className="font-serif italic text-2xl font-bold text-[#0D261E]">
+                Charity Integration
               </h3>
               <p className="text-xs text-[#485953] leading-relaxed">
-                Winners upload scorecard proof from HowDidiDo, GHIN, or club software. Audited
-                payouts are sent directly while partner charities receive their funds.
+                Seamless charity contribution logic. Minimum 10% pledge, voluntary percentage
+                slider up to 50%, and independent direct gifts not tied to gameplay (§ 08).
               </p>
-              <div className="text-[11px] font-mono text-[#C88D34]">PRD § 09 Winner Verification</div>
+            </div>
+
+            <div className="bg-white border border-[#E8DEC0] rounded-2xl p-6 shadow-sm space-y-3">
+              <div className="text-[10px] font-mono uppercase tracking-widest text-[#748780]">
+                CONTROL · 05
+              </div>
+              <h3 className="font-serif italic text-2xl font-bold text-[#0D261E]">
+                Admin Dashboard & Audit
+              </h3>
+              <p className="text-xs text-[#485953] leading-relaxed">
+                Comprehensive admin dashboard covering User Management, Draw Simulations, Charity
+                Directory, and Winner Verification proof approvals (§ 09 & § 11).
+              </p>
+            </div>
+
+            <div className="bg-[#0D261E] text-white rounded-2xl p-6 shadow-sm space-y-3">
+              <div className="text-[10px] font-mono uppercase tracking-widest text-[#E8C28A]">
+                DESIGN · 06
+              </div>
+              <h3 className="font-serif italic text-2xl font-bold text-[#FAF7F2]">
+                Outstanding UI/UX
+              </h3>
+              <p className="text-xs text-[#BDE3D5]/80 leading-relaxed">
+                A look that stands out in the golf industry. Editorial elegance, warm ivory,
+                heritage green, meaningful animations, and zero generic SaaS clichés (§ 12).
+              </p>
             </div>
           </div>
         </section>
 
         {/* ========================================================================= */}
-        {/* PRIZE POOL ARCHITECTURE & ROLLOVER EXPLANATION (§ 07) */}
+        {/* INTERACTIVE DRAW MACHINE TUMBLER (§ 06) */}
         {/* ========================================================================= */}
-        <section id="draw-mechanics" className="py-20 px-4 sm:px-6 lg:px-8 bg-[#0D261E] text-white">
+        <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+          <DrawMachine />
+        </section>
+
+        {/* ========================================================================= */}
+        {/* PRIZE POOL ARCHITECTURE & SCALE SIMULATOR (§ 07) */}
+        {/* ========================================================================= */}
+        <section className="py-16 px-4 sm:px-6 lg:px-8 bg-[#F3ECE2] border-t border-b border-[#E8DEC0]">
           <div className="max-w-7xl mx-auto space-y-12">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-              <div className="space-y-3">
-                <span className="text-xs font-mono uppercase tracking-widest text-[#E8C28A]">
-                  § 07 · Strict Mathematical Logic
-                </span>
-                <h2 className="font-serif italic text-3xl sm:text-5xl font-normal text-[#FAF7F2]">
-                  The 40 / 35 / 25 Prize Architecture
-                </h2>
-                <p className="text-sm text-[#BDE3D5]/80 max-w-xl">
-                  Enforced automatically. A fixed 50% share of every subscription fee directly
-                  funds the monthly prize pool, complemented by rollover accumulation.
-                </p>
-              </div>
-
-              <div className="bg-[#143A2F] border border-[#215444] rounded-2xl p-4 text-xs font-mono text-white/90">
-                Rollover Guarantee: Unclaimed Tier 1 Jackpots Carry Forward
-              </div>
+            <div className="space-y-3 text-center max-w-2xl mx-auto">
+              <span className="text-xs font-mono uppercase tracking-widest text-[#C88D34] font-semibold">
+                § 07 · Mathematical Transparency
+              </span>
+              <h2 className="font-serif italic text-4xl sm:text-5xl text-[#0D261E]">
+                The 40 / 35 / 25 Prize & Charity Calculator
+              </h2>
+              <p className="text-sm text-[#485953]">
+                Interact with the subscriber base slider to watch prize pools, tier payouts, and
+                charity disbursements scale dynamically.
+              </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Tier 1 */}
-              <div className="bg-[#143A2F]/90 border border-[#C88D34] rounded-2xl p-8 space-y-4 relative">
-                <div className="text-xs font-mono uppercase tracking-wider text-[#E8C28A]">
-                  Tier 01 · 5-Number Match
+            {/* Interactive Scale Controls */}
+            <div className="bg-white border border-[#E8DEC0] rounded-3xl p-6 sm:p-10 shadow-lg space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <label className="block text-xs font-semibold uppercase text-[#485953] mb-2">
+                    Active Subscriber Count:
+                  </label>
+                  <div className="font-serif text-3xl font-bold text-[#0D261E] mb-2">
+                    {simulatedSubscribers.toLocaleString()} Golfers
+                  </div>
+                  <input
+                    type="range"
+                    min="250"
+                    max="10000"
+                    step="50"
+                    value={simulatedSubscribers}
+                    onChange={(e) => setSimulatedSubscribers(Number(e.target.value))}
+                    className="w-full accent-[#143A2F]"
+                  />
+                  <div className="flex justify-between text-[10px] text-[#748780] mt-1 font-mono">
+                    <span>250</span>
+                    <span>5,000</span>
+                    <span>10,000</span>
+                  </div>
                 </div>
-                <div className="font-serif italic text-4xl sm:text-5xl font-bold text-[#FAF7F2]">
-                  40%
+
+                <div>
+                  <label className="block text-xs font-semibold uppercase text-[#485953] mb-2">
+                    Charity Contribution Pledge:
+                  </label>
+                  <div className="font-serif text-3xl font-bold text-[#143A2F] mb-2">
+                    {simulatedCharityPercent}% of Fee
+                  </div>
+                  <input
+                    type="range"
+                    min="10"
+                    max="50"
+                    step="5"
+                    value={simulatedCharityPercent}
+                    onChange={(e) => setSimulatedCharityPercent(Number(e.target.value))}
+                    className="w-full accent-[#143A2F]"
+                  />
+                  <div className="flex justify-between text-[10px] text-[#748780] mt-1 font-mono">
+                    <span>10% (Min)</span>
+                    <span>25%</span>
+                    <span>50%</span>
+                  </div>
                 </div>
-                <div className="text-sm text-[#E8C28A] font-semibold">
-                  + Rollover Jackpot Accumulation
+
+                <div>
+                  <label className="block text-xs font-semibold uppercase text-[#485953] mb-2">
+                    Membership Plan:
+                  </label>
+                  <div className="grid grid-cols-2 gap-2 mt-2">
+                    <button
+                      onClick={() => setSimulatedPlan("monthly")}
+                      className={`py-3 text-xs font-bold rounded-xl border transition-all ${
+                        simulatedPlan === "monthly"
+                          ? "bg-[#143A2F] text-white border-[#0D261E]"
+                          : "bg-[#FAF7F2] text-[#0D261E] border-[#E8DEC0]"
+                      }`}
+                    >
+                      Monthly (£15)
+                    </button>
+                    <button
+                      onClick={() => setSimulatedPlan("yearly")}
+                      className={`py-3 text-xs font-bold rounded-xl border transition-all ${
+                        simulatedPlan === "yearly"
+                          ? "bg-[#143A2F] text-white border-[#0D261E]"
+                          : "bg-[#FAF7F2] text-[#0D261E] border-[#E8DEC0]"
+                      }`}
+                    >
+                      Annual (£150)
+                    </button>
+                  </div>
                 </div>
-                <p className="text-xs text-[#BDE3D5]/80 leading-relaxed">
-                  If no subscriber matches all 5 numbers in a given month, this entire 40% pool
-                  carries forward into next month’s major jackpot.
-                </p>
               </div>
 
-              {/* Tier 2 */}
-              <div className="bg-[#143A2F]/90 border border-[#215444] rounded-2xl p-8 space-y-4">
-                <div className="text-xs font-mono uppercase tracking-wider text-[#BDE3D5]">
-                  Tier 02 · 4-Number Match
+              {/* Dynamic Result Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-6 border-t border-[#E8DEC0]">
+                <div className="p-4 bg-[#FAF7F2] border border-[#E8DEC0] rounded-2xl">
+                  <span className="text-[10px] font-mono uppercase text-[#748780] block mb-1">
+                    Monthly Charity Fund
+                  </span>
+                  <div className="font-serif italic text-2xl sm:text-3xl font-black text-[#143A2F]">
+                    £{monthlyCharityFund.toLocaleString("en-GB", { maximumFractionDigits: 0 })}
+                  </div>
+                  <span className="text-[11px] text-[#2E6E59] font-medium">To vetted causes</span>
                 </div>
-                <div className="font-serif italic text-4xl sm:text-5xl font-bold text-[#FAF7F2]">
-                  35%
-                </div>
-                <div className="text-sm text-white/70 font-semibold">
-                  Split equally among all 4-match winners
-                </div>
-                <p className="text-xs text-[#BDE3D5]/80 leading-relaxed">
-                  Consistently rewards sharp play. Disbursed equally to every golfer matching
-                  four of the five drawn Stableford numbers.
-                </p>
-              </div>
 
-              {/* Tier 3 */}
-              <div className="bg-[#143A2F]/90 border border-[#215444] rounded-2xl p-8 space-y-4">
-                <div className="text-xs font-mono uppercase tracking-wider text-[#BDE3D5]">
-                  Tier 03 · 3-Number Match
+                <div className="p-4 bg-[#FAF7F2] border-2 border-[#C88D34] rounded-2xl relative">
+                  <span className="text-[10px] font-mono uppercase text-[#915E12] block mb-1">
+                    Tier 1 (40% + Rollover)
+                  </span>
+                  <div className="font-serif italic text-2xl sm:text-3xl font-black text-[#0D261E]">
+                    £{tier1Total.toLocaleString("en-GB", { maximumFractionDigits: 0 })}
+                  </div>
+                  <span className="text-[11px] text-[#C88D34] font-bold">5-match jackpot</span>
                 </div>
-                <div className="font-serif italic text-4xl sm:text-5xl font-bold text-[#FAF7F2]">
-                  25%
+
+                <div className="p-4 bg-[#FAF7F2] border border-[#E8DEC0] rounded-2xl">
+                  <span className="text-[10px] font-mono uppercase text-[#748780] block mb-1">
+                    Tier 2 (35% Pool)
+                  </span>
+                  <div className="font-serif italic text-2xl sm:text-3xl font-black text-[#0D261E]">
+                    £{tier2Total.toLocaleString("en-GB", { maximumFractionDigits: 0 })}
+                  </div>
+                  <span className="text-[11px] text-[#748780]">4-match winners</span>
                 </div>
-                <div className="text-sm text-white/70 font-semibold">
-                  Broad community distribution
+
+                <div className="p-4 bg-[#FAF7F2] border border-[#E8DEC0] rounded-2xl">
+                  <span className="text-[10px] font-mono uppercase text-[#748780] block mb-1">
+                    Tier 3 (25% Pool)
+                  </span>
+                  <div className="font-serif italic text-2xl sm:text-3xl font-black text-[#0D261E]">
+                    £{tier3Total.toLocaleString("en-GB", { maximumFractionDigits: 0 })}
+                  </div>
+                  <span className="text-[11px] text-[#748780]">3-match winners</span>
                 </div>
-                <p className="text-xs text-[#BDE3D5]/80 leading-relaxed">
-                  Accessible odds ensuring a wide segment of subscribers receive winnings every
-                  monthly cadence.
-                </p>
               </div>
             </div>
           </div>
         </section>
 
         {/* ========================================================================= */}
-        {/* CHARITY SPOTLIGHT (§ 08.2 Homepage Spotlight) */}
+        {/* CHARITY SPOTLIGHT DOSSIERS (§ 08.2) */}
         {/* ========================================================================= */}
-        <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-12">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div className="space-y-3">
+        <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-12">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-[#E8DEC0] pb-6">
+            <div className="space-y-2">
               <span className="text-xs font-mono uppercase tracking-widest text-[#C88D34] font-semibold">
-                § 08.2 · Homepage Charity Spotlight
+                § 08.2 · PARTNER DOSSIERS
               </span>
-              <h2 className="font-serif italic text-3xl sm:text-5xl font-normal text-[#0D261E]">
-                Featured Partner Causes
+              <h2 className="font-serif italic text-4xl sm:text-5xl text-[#0D261E]">
+                Where your subscription lands
               </h2>
-              <p className="text-sm text-[#485953] max-w-xl">
-                Every subscription actively powers youth access, medical rehabilitation, and
-                environmental links preservation.
-              </p>
             </div>
-
             <Link
               href="/charities"
-              className="inline-flex items-center gap-2 text-xs font-bold text-[#143A2F] hover:text-[#0D261E] pb-1 border-b border-[#143A2F]"
+              className="text-xs font-bold text-[#143A2F] hover:text-[#0D261E] pb-1 border-b border-[#143A2F] flex items-center gap-1.5"
             >
-              <span>View Full Directory of Causes</span>
+              <span>Explore All Vetted Causes</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -386,21 +507,21 @@ export default function HomePage() {
             {featuredCharities.map((charity) => (
               <div
                 key={charity.id}
-                className="bg-white border border-[#E8DEC0] rounded-2xl overflow-hidden shadow-sm flex flex-col group"
+                className="bg-white border border-[#E8DEC0] rounded-2xl overflow-hidden shadow-sm flex flex-col group hover:shadow-md transition-all"
               >
-                <div className="relative h-48 w-full overflow-hidden bg-[#0D261E]">
+                <div className="relative h-56 w-full overflow-hidden bg-[#0D261E]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={charity.hero_image_url}
                     alt={charity.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent"></div>
                   <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-white/90 text-[#0D261E] text-[10px] font-bold">
                     {charity.category}
                   </span>
-                  <div className="absolute bottom-3 left-3 text-white">
-                    <h3 className="font-serif italic text-xl font-bold leading-tight">
+                  <div className="absolute bottom-3 left-4 right-4 text-white">
+                    <h3 className="font-serif italic text-2xl font-bold leading-tight">
                       {charity.name}
                     </h3>
                   </div>
@@ -411,13 +532,22 @@ export default function HomePage() {
                     {charity.description}
                   </p>
 
+                  <div className="grid grid-cols-2 gap-2 p-3 bg-[#FAF7F2] rounded-xl text-center border border-[#E8DEC0]/60">
+                    {charity.impact_metrics.slice(0, 2).map((m, i) => (
+                      <div key={i}>
+                        <div className="font-serif font-bold text-sm text-[#0D261E]">{m.value}</div>
+                        <div className="text-[10px] text-[#748780]">{m.label}</div>
+                      </div>
+                    ))}
+                  </div>
+
                   <div className="pt-2 border-t border-[#E8DEC0] flex items-center justify-between text-xs">
-                    <span className="text-[#C88D34] font-bold">
+                    <span className="text-[#C88D34] font-bold font-mono">
                       £{charity.total_raised.toLocaleString("en-GB")} Raised
                     </span>
                     <button
                       onClick={() => setDonateModalOpen(true)}
-                      className="px-3 py-1.5 rounded-lg bg-[#FAF7F2] hover:bg-[#F3ECE2] text-[#143A2F] font-semibold border border-[#E8DEC0]"
+                      className="px-3.5 py-1.5 rounded-lg bg-[#143A2F] hover:bg-[#0D261E] text-white font-semibold transition-all shadow-sm"
                     >
                       Direct Gift (§ 08.1)
                     </button>
@@ -429,113 +559,41 @@ export default function HomePage() {
         </section>
 
         {/* ========================================================================= */}
-        {/* INTERACTIVE SUBSCRIPTION & CHARITY CALCULATOR */}
+        {/* CLOSING MANIFESTO & PERSUASIVE SUBSCRIPTION CTA (§ 12) */}
         {/* ========================================================================= */}
-        <section className="py-20 px-4 sm:px-6 lg:px-8 bg-[#F3ECE2] border-t border-b border-[#E8DEC0]">
-          <div className="max-w-4xl mx-auto bg-white border border-[#E8DEC0] rounded-3xl p-6 sm:p-10 shadow-lg space-y-8">
-            <div className="text-center space-y-2">
-              <span className="text-xs font-mono uppercase tracking-wider text-[#C88D34] font-semibold">
-                Transparent Subscription Calculator
-              </span>
-              <h2 className="font-serif italic text-3xl font-bold text-[#0D261E]">
-                See Where Every Pound Goes
-              </h2>
-              <p className="text-xs text-[#748780] max-w-md mx-auto">
-                No hidden cuts. 50% directly empowers the prize pool, while you dictate your charity contribution percentage.
-              </p>
+        <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pb-16">
+          <div className="bg-[#0D261E] text-white rounded-3xl p-8 sm:p-16 border border-[#143A2F] shadow-2xl relative overflow-hidden text-center space-y-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#143A2F] text-[#E8C28A] text-xs font-mono font-bold border border-white/10 mx-auto">
+              <ShieldCheck className="w-4 h-4 text-[#C88D34]" />
+              Edition 2026 Guaranteed Selection
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-              <div className="space-y-6">
-                {/* Plan Toggle */}
-                <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-[#485953] mb-2">
-                    Select Plan Cadence
-                  </label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      onClick={() => setCalcTier("monthly")}
-                      className={`py-3 text-xs font-bold rounded-xl border transition-all ${
-                        calcTier === "monthly"
-                          ? "bg-[#143A2F] text-white border-[#0D261E]"
-                          : "bg-[#FAF7F2] text-[#0D261E] border-[#E8DEC0]"
-                      }`}
-                    >
-                      Monthly (£15 / mo)
-                    </button>
-                    <button
-                      onClick={() => setCalcTier("yearly")}
-                      className={`py-3 text-xs font-bold rounded-xl border transition-all ${
-                        calcTier === "yearly"
-                          ? "bg-[#143A2F] text-white border-[#0D261E]"
-                          : "bg-[#FAF7F2] text-[#0D261E] border-[#E8DEC0]"
-                      }`}
-                    >
-                      Yearly (£150 / yr)
-                    </button>
-                  </div>
-                </div>
+            <h2 className="font-serif italic text-4xl sm:text-6xl font-normal max-w-3xl mx-auto leading-tight">
+              “Every shot has purpose. Every draw changes a life.”
+            </h2>
 
-                {/* Charity Percentage Slider */}
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-[#485953]">
-                      Your Charity Pledge
-                    </label>
-                    <span className="font-serif text-lg font-bold text-[#143A2F]">
-                      {calcCharityPercent}%
-                    </span>
-                  </div>
-                  <input
-                    type="range"
-                    min="10"
-                    max="50"
-                    step="5"
-                    value={calcCharityPercent}
-                    onChange={(e) => setCalcCharityPercent(Number(e.target.value))}
-                    className="w-full accent-[#143A2F]"
-                  />
-                  <div className="flex justify-between text-[10px] text-[#748780] mt-1">
-                    <span>10% (PRD Minimum)</span>
-                    <span>50% (Hero Pledge)</span>
-                  </div>
-                </div>
-              </div>
+            <p className="text-sm sm:text-base text-[#BDE3D5]/80 max-w-xl mx-auto">
+              Join the new generation of golfers combining personal performance tracking with
+              transparent, measurable social philanthropy.
+            </p>
 
-              {/* Calculated Breakdown Card */}
-              <div className="bg-[#FAF7F2] border border-[#E8DEC0] rounded-2xl p-6 space-y-4">
-                <span className="text-xs font-mono uppercase tracking-wider text-[#748780] block">
-                  Annual Impact Breakdown:
-                </span>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-[#485953]">To Your Nominated Charity:</span>
-                    <strong className="font-serif text-xl text-[#143A2F]">
-                      £{calculatedCharityAnnual} / yr
-                    </strong>
-                  </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-[#485953]">To Draw Prize Pools:</span>
-                    <strong className="font-serif text-xl text-[#C88D34]">
-                      £{calculatedPrizeAnnual} / yr
-                    </strong>
-                  </div>
-                  <div className="flex justify-between items-center text-xs text-[#748780] pt-2 border-t border-[#E8DEC0]">
-                    <span>Eligible Monthly Draws:</span>
-                    <span className="font-bold text-[#0D261E]">12 Major Draws</span>
-                  </div>
-                </div>
+            <div className="pt-4 flex flex-wrap items-center justify-center gap-4">
+              <button
+                onClick={() => {
+                  setAuthDefaultTab("signup");
+                  setAuthModalOpen(true);
+                }}
+                className="px-8 py-4 bg-[#C88D34] hover:bg-[#E09F45] text-[#071712] font-serif italic text-lg font-bold rounded-2xl shadow-xl transition-all transform hover:scale-[1.02]"
+              >
+                Subscribe Now from £15 / month
+              </button>
 
-                <button
-                  onClick={() => {
-                    setAuthDefaultTab("signup");
-                    setAuthModalOpen(true);
-                  }}
-                  className="w-full py-3 bg-[#143A2F] hover:bg-[#0D261E] text-white font-semibold rounded-xl text-xs transition-all shadow-md mt-4"
-                >
-                  Join with This Allocation
-                </button>
-              </div>
+              <Link
+                href="/dashboard"
+                className="px-6 py-4 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-2xl text-sm transition-all border border-white/20"
+              >
+                Enter Demo Golfer Portal
+              </Link>
             </div>
           </div>
         </section>

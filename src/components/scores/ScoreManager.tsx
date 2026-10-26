@@ -14,6 +14,7 @@ import {
   Sparkles,
   Info,
 } from "lucide-react";
+import { ScoreTicketCard } from "@/components/scores/ScoreTicketCard";
 
 export function ScoreManager() {
   const { userScores, addGolfScore, updateGolfScore, deleteGolfScore, currentUser } =
@@ -330,79 +331,17 @@ export function ScoreManager() {
             </p>
           </div>
         ) : (
-          <div className="space-y-3">
-            {userScores.map((score, index) => {
-              const isLatest = index === 0;
-              const isOldest = index === userScores.length - 1 && userScores.length === 5;
-
-              return (
-                <div
-                  key={score.id}
-                  className="bg-white border border-[#E8DEC0] rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-[#143A2F]/40 transition-all shadow-sm"
-                >
-                  <div className="flex items-center gap-4">
-                    {/* Score lottery ball representation */}
-                    <div className="w-14 h-14 rounded-full bg-[#143A2F] text-white flex flex-col items-center justify-center shrink-0 shadow-md">
-                      <span className="text-lg font-serif font-black text-[#FAF7F2] leading-none">
-                        {score.score}
-                      </span>
-                      <span className="text-[9px] uppercase tracking-wider text-[#E8C28A]">
-                        pts
-                      </span>
-                    </div>
-
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-[#0D261E]">
-                          {score.course_name}
-                        </span>
-                        {isLatest && (
-                          <span className="text-[10px] font-semibold bg-[#2E6E59]/15 text-[#215444] px-2 py-0.5 rounded-full">
-                            Latest Entry
-                          </span>
-                        )}
-                        {isOldest && (
-                          <span className="text-[10px] font-semibold bg-amber-50 text-[#C88D34] px-2 py-0.5 rounded-full">
-                            Next to Drop Off
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-3 text-xs text-[#748780]">
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-3.5 h-3.5 text-[#C88D34]" />
-                          {new Date(score.played_date).toLocaleDateString("en-GB", {
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric",
-                          })}
-                        </span>
-                        <span>•</span>
-                        <span>{score.holes_played} Holes Played</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 self-end sm:self-center">
-                    <button
-                      onClick={() => startEdit(score)}
-                      className="p-2 text-[#485953] hover:text-[#143A2F] hover:bg-[#F3ECE2] rounded-lg transition-colors text-xs inline-flex items-center gap-1"
-                      title="Edit this score"
-                    >
-                      <Edit2 className="w-3.5 h-3.5" />
-                      <span className="hidden sm:inline">Edit</span>
-                    </button>
-                    <button
-                      onClick={() => deleteGolfScore(score.id)}
-                      className="p-2 text-[#748780] hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors text-xs inline-flex items-center gap-1"
-                      title="Delete this score"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                      <span className="hidden sm:inline">Delete</span>
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
+          <div className="space-y-4">
+            {userScores.map((score, index) => (
+              <ScoreTicketCard
+                key={score.id}
+                score={score}
+                index={index}
+                totalScores={userScores.length}
+                onEdit={startEdit}
+                onDelete={deleteGolfScore}
+              />
+            ))}
           </div>
         )}
       </div>
