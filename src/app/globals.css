@@ -1,0 +1,109 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-serif: 'Newsreader', Georgia, serif;
+    --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    
+    /* Warm Ivory & Natural Editorial Palette */
+    --ivory-base: #FAF7F2;
+    --ivory-card: #FFFFFF;
+    --ivory-muted: #F3ECE2;
+    --ivory-border: #E8DEC0;
+    
+    /* Heritage Forest Green Palette */
+    --forest-deep: #0D261E;
+    --forest-primary: #143A2F;
+    --forest-light: #215444;
+    --forest-surface: #E8F1ED;
+    --forest-accent: #377360;
+
+    /* Warm Gold / Amber Accent for awards & jackpots */
+    --gold-accent: #C88D34;
+    --gold-soft: #F9EED9;
+    --gold-deep: #915E12;
+
+    /* Charcoal text with subtle green undertone */
+    --text-primary: #121F1A;
+    --text-secondary: #485953;
+    --text-muted: #748780;
+  }
+
+  body {
+    background-color: var(--ivory-base);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, .font-serif-heading {
+    font-family: var(--font-serif);
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Editorial styling utilities */
+.font-serif {
+  font-family: var(--font-serif);
+}
+
+.font-sans {
+  font-family: var(--font-sans);
+}
+
+.editorial-shadow {
+  box-shadow: 0 4px 20px -2px rgba(13, 38, 30, 0.05), 0 2px 6px -1px rgba(13, 38, 30, 0.03);
+}
+
+.editorial-shadow-lg {
+  box-shadow: 0 12px 36px -4px rgba(13, 38, 30, 0.09), 0 4px 12px -2px rgba(13, 38, 30, 0.04);
+}
+
+.paper-texture {
+  background-color: #FAF7F2;
+  background-image: radial-gradient(#143A2F 0.5px, transparent 0.5px);
+  background-size: 24px 24px;
+  background-position: 0 0;
+  opacity: 0.98;
+}
+
+/* Custom delicate scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #FAF7F2;
+}
+::-webkit-scrollbar-thumb {
+  background: #C4D6CD;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #8FAEA2;
+}
+
+/* Number badge styles */
+.lottery-ball {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-feature-settings: "tnum";
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(200, 141, 52, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(200, 141, 52, 0);
+  }
+}
+
+.animate-gold-pulse {
+  animation: pulseGlow 2.5s infinite;
+}
