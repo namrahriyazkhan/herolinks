@@ -73,8 +73,10 @@ interface AppContextType {
     tier?: SubscriptionTier;
     charityId?: string;
     charityPercentage?: number;
-    status?: "active" | "inactive" | "cancelled";
+    status?: "active" | "inactive" | "lapsed" | "cancelled";
   }) => void;
+  reactivateSubscription: (tier?: SubscriptionTier) => void;
+  adminUpdateUserProfile: (userId: string, updates: Partial<UserProfile>) => void;
   makeDirectDonation: (params: {
     charityId: string;
     amount: number;
@@ -303,7 +305,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setCurrentUser(DEMO_USERS[0]);
   };
 
-  // 2. Score Management (§ 05)
+  // 2. Score Management (§ 05 & § 04 Access Control)
   const addGolfScore = (params: {
     score: number;
     playedDate: string;
@@ -311,7 +313,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     holesPlayed?: 9 | 18;
     userId?: string;
   }) => {
-    const targetUserId = params.userId || currentUser.id;
+    const targetUserId = params.userId || currentUser?.id;
+    if (!targetUserId) return { success: false, error: "Authentication required." };
+
+    // § 04 ACCESS CONTROL & VALIDATION: Real-time check
+    const targetUser = allUsers.find((u) => u.id === targetUserId);
+    if (!targetUser || targetUser.subscription_status !== "active") {
+      return {
+        success: false,
+        error:
+          "Access Restricted (§ 04): An active subscription is required to record golf scores and enter monthly draws.",
+      };
+    }
+
     const targetUserScores = allScores.filter((s) => s.user_id === targetUserId);
 
     // Validation
@@ -394,14 +408,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setAllScores((prev) => prev.filter((s) => s.id !== scoreId));
   };
 
-  // 3. Subscription & Giving (§ 04, § 08)
+  // 3. Subscription Lifecycle & Giving (§ 04, § 08, § 11.01)
   const updateSubscriptionSettings = (params: {
     tier?: SubscriptionTier;
     charityId?: string;
     charityPercentage?: number;
-    status?: "active" | "inactive" | "cancelled";
+    status?: "active" | "inactive" | "lapsed" | "cancelled";
   }) => {
     setCurrentUser((prev) => {
+      if (!prev) return prev;
       const updated: UserProfile = {
         ...prev,
         subscription_tier: params.tier ?? prev.subscription_tier,
@@ -417,6 +432,35 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       );
       return updated;
     });
+  };
+
+  const reactivateSubscription = (tier?: SubscriptionTier) => {
+    if (!currentUser) return;
+    const renewDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+    const updatedTier = tier || currentUser.subscription_tier || "monthly";
+
+    setCurrentUser((prev) => {
+      const up: UserProfile = {
+        ...prev,
+        subscription_status: "active",
+        subscription_tier: updatedTier,
+        subscription_renews_at: renewDate,
+      };
+      setAllUsers((users) => users.map((u) => (u.id === prev.id ? up : u)));
+      return up;
+    });
+  };
+
+  const adminUpdateUserProfile = (
+    userId: string,
+    updates: Partial<UserProfile>
+  ) => {
+    setAllUsers((users) =>
+      users.map((u) => (u.id === userId ? { ...u, ...updates } : u))
+    );
+    if (currentUser?.id === userId) {
+      setCurrentUser((prev) => ({ ...prev, ...updates }));
+    }
   };
 
   const makeDirectDonation = (params: {
@@ -662,6 +706,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         updateGolfScore,
         deleteGolfScore,
         updateSubscriptionSettings,
+        reactivateSubscription,
+        adminUpdateUserProfile,
         makeDirectDonation,
         charities,
         addCharity,

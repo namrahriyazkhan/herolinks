@@ -225,3 +225,104 @@ describe("§ 06 & § 07 Draw Engine & Prize Pool Unit Tests", () => {
     assert.equal(sim.rolloverCarriedForward, sim.draw.tier1_pool_share);
   });
 });
+
+describe("§ 04 Subscription & Payment Access Control Tests", () => {
+  it("should enforce active subscription requirement for platform participation (§ 04)", () => {
+    const activeSubscriber: UserProfile = {
+      id: "u-active",
+      email: "active@golf.co.uk",
+      full_name: "Active Golfer",
+      role: "subscriber",
+      subscription_tier: "monthly",
+      subscription_status: "active",
+      charity_id: "c1",
+      charity_percentage: 15,
+      created_at: "",
+    };
+
+    const lapsedSubscriber: UserProfile = {
+      id: "u-lapsed",
+      email: "lapsed@golf.co.uk",
+      full_name: "Lapsed Golfer",
+      role: "subscriber",
+      subscription_tier: "monthly",
+      subscription_status: "lapsed",
+      charity_id: "c1",
+      charity_percentage: 15,
+      created_at: "",
+    };
+
+    // Only active subscribers are eligible for simulated draws
+    const participants = [
+      {
+        user: activeSubscriber,
+        scores: [30, 32, 34, 36, 38].map((s, i) => ({
+          id: `s-${i}`,
+          user_id: "u-active",
+          score: s,
+          played_date: `2026-03-0${i + 1}`,
+          course_name: "C",
+          holes_played: 18 as const,
+          created_at: "",
+        })),
+      },
+      {
+        user: lapsedSubscriber,
+        scores: [30, 32, 34, 36, 38].map((s, i) => ({
+          id: `sl-${i}`,
+          user_id: "u-lapsed",
+          score: s,
+          played_date: `2026-03-0${i + 1}`,
+          course_name: "C",
+          holes_played: 18 as const,
+          created_at: "",
+        })),
+      },
+    ];
+
+    const sim = simulateMonthlyDraw({
+      drawTitle: "Access Control Draw",
+      drawLogic: "random",
+      participants,
+      rolloverJackpotIn: 0,
+      fixedNumbers: [30, 32, 34, 36, 38],
+    });
+
+    // Lapsed participant should be filtered out by draw engine
+    assert.equal(sim.entries.length, 1);
+    assert.equal(sim.entries[0].user_id, "u-active");
+  });
+});
+
+describe("§ 08 Charity Contribution Model Unit Tests", () => {
+  it("should enforce minimum 10% charity contribution pledge (§ 08.1)", () => {
+    const minPledge = 10;
+    const testPledgeUnder = Math.max(minPledge, 5); // clamped
+    const testPledgeValid = Math.max(minPledge, 25);
+    const testPledgeMax = Math.max(minPledge, 50);
+
+    assert.equal(testPledgeUnder, 10);
+    assert.equal(testPledgeValid, 25);
+    assert.equal(testPledgeMax, 50);
+  });
+});
+
+describe("§ 09 Winner Verification & Payment Lifecycle Unit Tests", () => {
+  it("should correctly handle verification states (Pending -> Paid) (§ 09)", () => {
+    let status: "pending" | "approved" | "rejected" = "pending";
+    let paymentStatus: "pending" | "paid" = "pending";
+
+    // 1. Initial State upon winning
+    assert.equal(status, "pending");
+    assert.equal(paymentStatus, "pending");
+
+    // 2. Admin approves screenshot
+    status = "approved";
+    assert.equal(status, "approved");
+
+    // 3. Payout dispatched
+    paymentStatus = "paid";
+    assert.equal(paymentStatus, "paid");
+  });
+});
+

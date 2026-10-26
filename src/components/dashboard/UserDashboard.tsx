@@ -27,6 +27,7 @@ export function UserDashboard() {
     currentUser,
     charities,
     updateSubscriptionSettings,
+    reactivateSubscription,
     userScores,
     latestPublishedDraw,
     userVerifications,
@@ -258,8 +259,87 @@ export function UserDashboard() {
       {/* Tab 1: Score Management (§ 05) */}
       {activeTab === "scores" && <ScoreManager />}
 
-      {/* Tab 2: Monthly Draws (§ 06 & § 07) */}
-      {activeTab === "draws" && <DrawBoard />}
+      {/* Tab 2: Monthly Draws (§ 06 & § 07 & § 10) */}
+      {activeTab === "draws" && (
+        <div className="space-y-6">
+          {/* Participation Summary Card (§ 10) */}
+          <div className="bg-white border border-[#E8DEC0] rounded-2xl p-6 sm:p-8 shadow-sm space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#E8DEC0] pb-4">
+              <div>
+                <span className="text-xs font-mono uppercase tracking-wider text-[#C88D34] font-semibold">
+                  § 10 · Participation Summary
+                </span>
+                <h3 className="font-serif italic text-2xl font-bold text-[#0D261E]">
+                  Draws Entered & Upcoming Cadence
+                </h3>
+              </div>
+              <div className="text-xs text-[#748780] bg-[#FAF7F2] px-3.5 py-1.5 rounded-lg border border-[#E8DEC0]">
+                Monthly Schedule • Automatically Enters Your 5 Latest Scores
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Upcoming Draw */}
+              <div className="p-5 rounded-xl bg-[#FAF7F2] border border-[#E8DEC0] space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-mono uppercase text-[#748780]">Next Upcoming Draw</span>
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#143A2F] text-white">
+                    Entries Open
+                  </span>
+                </div>
+                <div className="font-serif italic text-2xl font-bold text-[#0D261E]">
+                  April 2026 Spring Masters Draw
+                </div>
+                <div className="text-xs text-[#485953] space-y-1">
+                  <div>
+                    Scheduled Date: <strong>30 April 2026 at 20:00 GMT</strong>
+                  </div>
+                  <div>
+                    Estimated Prize Fund: <strong>£16,500+</strong> (including Tier 1 rollover)
+                  </div>
+                </div>
+                <div className="pt-2 border-t border-[#E8DEC0] text-xs flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span className="font-medium text-[#143A2F]">
+                    {userScores.length === 5
+                      ? "Your 5 active scores are automatically entered into this draw."
+                      : `Log ${5 - userScores.length} more score(s) in Score Management to qualify.`}
+                  </span>
+                </div>
+              </div>
+
+              {/* Draws Entered History */}
+              <div className="p-5 rounded-xl bg-[#FAF7F2] border border-[#E8DEC0] space-y-3">
+                <span className="text-xs font-mono uppercase text-[#748780] block">
+                  Draws Entered History ({draws.filter((d) => d.status === "published").length})
+                </span>
+                <div className="space-y-2">
+                  {draws
+                    .filter((d) => d.status === "published")
+                    .map((d) => (
+                      <div
+                        key={d.id}
+                        className="p-3 bg-white rounded-lg border border-[#E8DEC0] flex items-center justify-between text-xs"
+                      >
+                        <div>
+                          <div className="font-bold text-[#0D261E]">{d.title}</div>
+                          <div className="text-[11px] text-[#748780]">
+                            Drawn: {new Date(d.draw_date).toLocaleDateString("en-GB")}
+                          </div>
+                        </div>
+                        <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                          Participated
+                        </span>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <DrawBoard />
+        </div>
+      )}
 
       {/* Tab 3: Charity & Subscription (§ 04 & § 08) */}
       {activeTab === "giving" && (
@@ -366,6 +446,92 @@ export function UserDashboard() {
                   <Heart className="w-3.5 h-3.5 text-[#C88D34]" />
                   Direct Gift (§ 08.1)
                 </button>
+              </div>
+            </div>
+
+            {/* PRD § 04: Subscription Lifecycle Management (Active, Lapsed, Cancelled, Renewal) */}
+            <div className="pt-6 border-t border-[#E8DEC0] space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <span className="text-xs font-mono uppercase tracking-wider text-[#C88D34] font-semibold">
+                    § 04 · Subscription Lifecycle & Gateway Simulation
+                  </span>
+                  <h4 className="font-serif italic font-bold text-lg text-[#0D261E]">
+                    Membership Status & Card Controls (Stripe PCI Gateway)
+                  </h4>
+                </div>
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-mono font-bold uppercase ${
+                    currentUser.subscription_status === "active"
+                      ? "bg-emerald-100 text-emerald-800"
+                      : currentUser.subscription_status === "lapsed"
+                      ? "bg-red-100 text-red-800"
+                      : "bg-amber-100 text-amber-800"
+                  }`}
+                >
+                  Status: {currentUser.subscription_status}
+                </span>
+              </div>
+
+              <div className="p-4 bg-[#FAF7F2] rounded-xl border border-[#E8DEC0] text-xs space-y-2">
+                <div className="flex justify-between items-center text-[#485953]">
+                  <span>Payment Gateway:</span>
+                  <strong className="text-[#0D261E]">Stripe Connect (PCI-DSS Level 1 Compliant)</strong>
+                </div>
+                <div className="flex justify-between items-center text-[#485953]">
+                  <span>Payment Method on File:</span>
+                  <strong className="text-[#0D261E] font-mono">Visa ending in •••• 4242</strong>
+                </div>
+                <div className="flex justify-between items-center text-[#485953]">
+                  <span>Scheduled Renewal:</span>
+                  <strong className="text-[#0D261E]">
+                    {currentUser.subscription_renews_at
+                      ? new Date(currentUser.subscription_renews_at).toLocaleDateString("en-GB")
+                      : "Automatic monthly roll"}
+                  </strong>
+                </div>
+              </div>
+
+              {/* Lifecycle Evaluator Sandbox */}
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <span className="text-[11px] font-mono text-[#748780] mr-2">
+                  Test Lifecycle (§ 04):
+                </span>
+                {currentUser.subscription_status !== "active" ? (
+                  <button
+                    type="button"
+                    onClick={() => reactivateSubscription()}
+                    className="px-3.5 py-1.5 bg-[#143A2F] text-white rounded-lg text-xs font-bold hover:bg-[#0D261E] transition-colors"
+                  >
+                    ✓ Reactivate via Stripe (§ 04)
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => updateSubscriptionSettings({ status: "lapsed" })}
+                      className="px-3 py-1.5 bg-amber-50 border border-amber-300 text-amber-900 rounded-lg text-xs font-semibold hover:bg-amber-100 transition-colors"
+                    >
+                      Simulate Payment Failure (Lapsed)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => updateSubscriptionSettings({ status: "cancelled" })}
+                      className="px-3 py-1.5 bg-red-50 border border-red-300 text-red-900 rounded-lg text-xs font-semibold hover:bg-red-100 transition-colors"
+                    >
+                      Simulate Cancellation
+                    </button>
+                  </>
+                )}
+                {currentUser.subscription_status === "cancelled" && (
+                  <button
+                    type="button"
+                    onClick={() => reactivateSubscription()}
+                    className="px-3.5 py-1.5 bg-[#143A2F] text-white rounded-lg text-xs font-bold hover:bg-[#0D261E] transition-colors"
+                  >
+                    Undo Cancellation (Renew)
+                  </button>
+                )}
               </div>
             </div>
           </div>

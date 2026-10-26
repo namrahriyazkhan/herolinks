@@ -43,6 +43,8 @@ export function AdminDashboard() {
     reviewVerification,
     markPayoutCompleted,
     updateGolfScore,
+    deleteGolfScore,
+    adminUpdateUserProfile,
   } = useApp();
 
   const [activeTab, setActiveTab] = useState<
@@ -361,40 +363,205 @@ export function AdminDashboard() {
             </table>
           </div>
 
-          {/* User Score Inspector Drawer */}
+          {/* User Profile, Subscription & Score Inspector Drawer (§ 11.01) */}
           {selectedUserForEdit && (
-            <div className="p-6 bg-[#FAF7F2] border border-[#E8DEC0] rounded-2xl space-y-4">
-              <div className="flex items-center justify-between">
+            <div className="p-6 bg-[#FAF7F2] border-2 border-[#143A2F] rounded-2xl space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#E8DEC0]">
                 <div>
-                  <h4 className="font-serif italic font-bold text-xl text-[#0D261E]">
-                    Managing Scores for: {selectedUserForEdit.full_name}
+                  <span className="text-xs font-mono uppercase tracking-wider text-[#C88D34] font-bold">
+                    § 11.01 · Subscriber Control Center
+                  </span>
+                  <h4 className="font-serif italic font-bold text-2xl text-[#0D261E]">
+                    Managing: {selectedUserForEdit.full_name}
                   </h4>
                   <p className="text-xs text-[#748780]">
-                    Admin Override Surface (§ 11.01: "Edit golf scores")
+                    Full operational control over user profile fields, subscription lifecycle, and golf score stamps.
                   </p>
                 </div>
                 <button
+                  type="button"
                   onClick={() => setSelectedUserForEdit(null)}
-                  className="px-3 py-1.5 bg-white border border-[#E8DEC0] rounded-lg text-xs font-semibold"
+                  className="px-4 py-2 bg-white border border-[#E8DEC0] rounded-xl text-xs font-semibold hover:bg-[#F3ECE2] transition-colors"
                 >
-                  Close
+                  Close Editor
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
-                {selectedUserScores.map((sc, i) => (
-                  <div
-                    key={sc.id}
-                    className="p-3 bg-white border border-[#E8DEC0] rounded-xl text-center space-y-1"
+              {/* Section A: Profile & Subscription Management */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-white rounded-xl border border-[#E8DEC0]">
+                <div>
+                  <label className="block text-xs font-semibold text-[#485953] uppercase mb-1">
+                    Subscription Status
+                  </label>
+                  <select
+                    value={selectedUserForEdit.subscription_status}
+                    onChange={(e) => {
+                      const newStatus = e.target.value as UserProfile["subscription_status"];
+                      adminUpdateUserProfile(selectedUserForEdit.id, { subscription_status: newStatus });
+                      setSelectedUserForEdit({ ...selectedUserForEdit, subscription_status: newStatus });
+                    }}
+                    className="w-full px-3 py-2 text-xs rounded-lg border border-[#E8DEC0] bg-[#FAF7F2] text-[#0D261E]"
                   >
-                    <div className="text-[10px] text-[#748780]">Score #{i + 1}</div>
-                    <div className="font-serif italic text-2xl font-bold text-[#143A2F]">
-                      {sc.score} pts
-                    </div>
-                    <div className="text-[11px] font-mono text-[#748780]">{sc.played_date}</div>
-                    <div className="text-[10px] text-[#0D261E] truncate">{sc.course_name}</div>
+                    <option value="active">Active (Entitled)</option>
+                    <option value="lapsed">Lapsed (Payment Retry)</option>
+                    <option value="cancelled">Cancelled</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-[#485953] uppercase mb-1">
+                    Subscription Tier
+                  </label>
+                  <select
+                    value={selectedUserForEdit.subscription_tier}
+                    onChange={(e) => {
+                      const newTier = e.target.value as UserProfile["subscription_tier"];
+                      adminUpdateUserProfile(selectedUserForEdit.id, { subscription_tier: newTier });
+                      setSelectedUserForEdit({ ...selectedUserForEdit, subscription_tier: newTier });
+                    }}
+                    className="w-full px-3 py-2 text-xs rounded-lg border border-[#E8DEC0] bg-[#FAF7F2] text-[#0D261E]"
+                  >
+                    <option value="monthly">Monthly (£15.00/mo)</option>
+                    <option value="yearly">Yearly (£150.00/yr)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-[#485953] uppercase mb-1">
+                    Pledged Charity
+                  </label>
+                  <select
+                    value={selectedUserForEdit.charity_id}
+                    onChange={(e) => {
+                      const newCharity = e.target.value;
+                      adminUpdateUserProfile(selectedUserForEdit.id, { charity_id: newCharity });
+                      setSelectedUserForEdit({ ...selectedUserForEdit, charity_id: newCharity });
+                    }}
+                    className="w-full px-3 py-2 text-xs rounded-lg border border-[#E8DEC0] bg-[#FAF7F2] text-[#0D261E]"
+                  >
+                    {charities.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-[#485953] uppercase mb-1">
+                    Charity Percentage Pledge
+                  </label>
+                  <input
+                    type="number"
+                    min="10"
+                    max="100"
+                    value={selectedUserForEdit.charity_percentage}
+                    onChange={(e) => {
+                      const pct = Math.max(10, parseInt(e.target.value, 10) || 10);
+                      adminUpdateUserProfile(selectedUserForEdit.id, { charity_percentage: pct });
+                      setSelectedUserForEdit({ ...selectedUserForEdit, charity_percentage: pct });
+                    }}
+                    className="w-full px-3 py-2 text-xs rounded-lg border border-[#E8DEC0] bg-[#FAF7F2] text-[#0D261E]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-[#485953] uppercase mb-1">
+                    Home Golf Club
+                  </label>
+                  <input
+                    type="text"
+                    value={selectedUserForEdit.home_club || ""}
+                    onChange={(e) => {
+                      const club = e.target.value;
+                      adminUpdateUserProfile(selectedUserForEdit.id, { home_club: club });
+                      setSelectedUserForEdit({ ...selectedUserForEdit, home_club: club });
+                    }}
+                    className="w-full px-3 py-2 text-xs rounded-lg border border-[#E8DEC0] bg-[#FAF7F2] text-[#0D261E]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-[#485953] uppercase mb-1">
+                    Handicap Index
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={selectedUserForEdit.handicap || 0}
+                    onChange={(e) => {
+                      const hcp = parseFloat(e.target.value) || 0;
+                      adminUpdateUserProfile(selectedUserForEdit.id, { handicap: hcp });
+                      setSelectedUserForEdit({ ...selectedUserForEdit, handicap: hcp });
+                    }}
+                    className="w-full px-3 py-2 text-xs rounded-lg border border-[#E8DEC0] bg-[#FAF7F2] text-[#0D261E]"
+                  />
+                </div>
+              </div>
+
+              {/* Section B: Golf Scores Management (§ 11.01: "Edit golf scores") */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h5 className="font-serif italic font-bold text-lg text-[#0D261E]">
+                    Current Rolling Five Scores ({selectedUserScores.length}/5)
+                  </h5>
+                  <span className="text-xs text-[#748780]">
+                    Only latest 5 are retained in reverse chronological order
+                  </span>
+                </div>
+
+                {selectedUserScores.length === 0 ? (
+                  <p className="text-xs text-[#748780] italic">No scores recorded for this user.</p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
+                    {selectedUserScores.map((sc, i) => (
+                      <div
+                        key={sc.id}
+                        className="p-3 bg-white border border-[#E8DEC0] rounded-xl text-center space-y-2 shadow-sm"
+                      >
+                        <div className="text-[10px] font-mono text-[#748780]">Round #{i + 1}</div>
+                        <div className="flex items-center justify-center gap-1">
+                          <input
+                            type="number"
+                            min="1"
+                            max="45"
+                            value={sc.score}
+                            onChange={(e) => {
+                              const newScoreVal = parseInt(e.target.value, 10);
+                              if (newScoreVal >= 1 && newScoreVal <= 45) {
+                                updateGolfScore({
+                                  id: sc.id,
+                                  score: newScoreVal,
+                                  playedDate: sc.played_date,
+                                  courseName: sc.course_name,
+                                  holesPlayed: sc.holes_played,
+                                });
+                                setSelectedUserScores((prev) =>
+                                  prev.map((item) => (item.id === sc.id ? { ...item, score: newScoreVal } : item))
+                                );
+                              }
+                            }}
+                            className="w-16 px-2 py-1 text-center font-serif italic text-xl font-bold text-[#143A2F] border border-[#E8DEC0] rounded-lg"
+                          />
+                          <span className="text-xs font-semibold text-[#748780]">pts</span>
+                        </div>
+                        <div className="text-[10px] font-mono text-[#748780]">{sc.played_date}</div>
+                        <div className="text-[10px] text-[#0D261E] truncate">{sc.course_name}</div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            deleteGolfScore(sc.id);
+                            setSelectedUserScores((prev) => prev.filter((item) => item.id !== sc.id));
+                          }}
+                          className="text-[10px] text-red-600 hover:text-red-800 font-semibold"
+                        >
+                          Remove Round
+                        </button>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
             </div>
           )}

@@ -17,8 +17,14 @@ import {
 import { ScoreTicketCard } from "@/components/scores/ScoreTicketCard";
 
 export function ScoreManager() {
-  const { userScores, addGolfScore, updateGolfScore, deleteGolfScore, currentUser } =
-    useApp();
+  const {
+    userScores,
+    addGolfScore,
+    updateGolfScore,
+    deleteGolfScore,
+    currentUser,
+    reactivateSubscription,
+  } = useApp();
 
   const [scoreInput, setScoreInput] = useState<string>("36");
   const [playedDate, setPlayedDate] = useState<string>("2026-03-24");
@@ -37,6 +43,8 @@ export function ScoreManager() {
   }, []);
 
   const metrics = calculateScoreMetrics(userScores);
+
+  const isSubscriptionActive = currentUser?.subscription_status === "active";
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -174,6 +182,30 @@ export function ScoreManager() {
           </div>
         </div>
 
+        {/* § 04 ACCESS CONTROL WARNING */}
+        {!isSubscriptionActive && (
+          <div className="p-4 rounded-xl mb-6 bg-amber-50 border border-amber-300 text-amber-900 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
+            <div className="flex items-center gap-2.5">
+              <AlertCircle className="w-5 h-5 text-amber-700 shrink-0" />
+              <div>
+                <strong className="block font-semibold">
+                  Subscription Status: {currentUser?.subscription_status?.toUpperCase() || "INACTIVE"}
+                </strong>
+                <span>
+                  Under PRD Section § 04 (Access Control), an active membership is required to record rounds and qualify for prize pools.
+                </span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => reactivateSubscription()}
+              className="px-4 py-2 bg-[#143A2F] text-white rounded-xl font-bold text-xs hover:bg-[#0D261E] shrink-0 transition-all shadow-sm"
+            >
+              Reactivate via Stripe (§ 04)
+            </button>
+          </div>
+        )}
+
         {feedback && (
           <div
             className={`p-4 rounded-xl mb-6 text-xs flex items-center gap-2.5 ${
@@ -280,9 +312,16 @@ export function ScoreManager() {
           <div className="flex items-center gap-3">
             <button
               type="submit"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-[#143A2F] hover:bg-[#0D261E] text-white font-semibold rounded-xl text-sm shadow-md transition-all"
+              disabled={!isSubscriptionActive}
+              className={`inline-flex items-center gap-2 px-6 py-3 font-semibold rounded-xl text-sm shadow-md transition-all ${
+                isSubscriptionActive
+                  ? "bg-[#143A2F] hover:bg-[#0D261E] text-white"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
             >
-              {editingScore ? (
+              {!isSubscriptionActive ? (
+                <span>Reactivate Subscription to Log Scores (§ 04)</span>
+              ) : editingScore ? (
                 <>
                   <CheckCircle2 className="w-4 h-4 text-[#E8C28A]" />
                   Save Changes
