@@ -32,7 +32,7 @@ import {
 
 interface AppContextType {
   // Auth & Session
-  currentUser: UserProfile;
+  currentUser: UserProfile | null;
   allUsers: UserProfile[];
   switchUserRole: (role: UserRole) => void;
   setCurrentUserById: (userId: string) => void;
@@ -184,7 +184,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     try {
       const payload = {
         allUsers,
-        currentUserId: currentUser.id,
+        currentUserId: currentUser ? currentUser.id : null,
         allScores,
         charities,
         draws,
@@ -198,17 +198,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [allUsers, currentUser, allScores, charities, draws, verifications, donations]);
 
   // Derived user scores (sorted reverse chronological)
-  const userScores = allScores
-    .filter((s) => s.user_id === currentUser.id)
-    .sort(
-      (a, b) =>
-        new Date(b.played_date).getTime() - new Date(a.played_date).getTime()
-    );
+  const userScores = currentUser
+    ? allScores
+        .filter((s) => s.user_id === currentUser.id)
+        .sort(
+          (a, b) =>
+            new Date(b.played_date).getTime() - new Date(a.played_date).getTime()
+        )
+    : [];
 
   // Derived user verifications
-  const userVerifications = verifications.filter(
-    (v) => v.user_id === currentUser.id
-  );
+  const userVerifications = currentUser
+    ? verifications.filter((v) => v.user_id === currentUser.id)
+    : [];
 
   // Latest published draw
   const publishedDraws = draws

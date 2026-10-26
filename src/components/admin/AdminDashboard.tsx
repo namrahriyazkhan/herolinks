@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { useApp } from "@/lib/store/app-context";
 import { Charity, DrawLogicType, GolfScore, UserProfile } from "@/types";
 import {
@@ -26,6 +27,7 @@ import confetti from "canvas-confetti";
 
 export function AdminDashboard() {
   const {
+    currentUser,
     allUsers,
     allScores,
     charities,
@@ -46,6 +48,35 @@ export function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<
     "users" | "draws" | "charities" | "winners" | "analytics"
   >("draws");
+
+  if (!currentUser || currentUser.role !== "admin") {
+    return (
+      <div className="max-w-xl mx-auto py-16 text-center space-y-6">
+        <div className="w-16 h-16 rounded-full bg-[#0D261E] text-white flex items-center justify-center mx-auto shadow-lg">
+          <ShieldAlert className="w-8 h-8 text-[#C88D34]" />
+        </div>
+        <div className="space-y-2">
+          <span className="font-mono text-xs text-[#C88D34] uppercase tracking-wider font-semibold">
+            § 03 · RESTRICTED SURFACE
+          </span>
+          <h2 className="font-serif italic text-3xl sm:text-4xl font-normal text-[#0D261E]">
+            Administrator Access Required
+          </h2>
+          <p className="text-sm text-[#485953] leading-relaxed">
+            The Admin Center is restricted to platform tournament directors and auditors. Please sign in with an administrator credential.
+          </p>
+        </div>
+        <div>
+          <Link
+            href="/login"
+            className="px-6 py-3 bg-[#0D261E] text-white rounded-xl text-sm font-semibold hover:bg-[#143A2F] transition-all inline-flex items-center gap-2"
+          >
+            Sign In with Admin Account
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   // Draw simulation state (§ 11.02)
   const [drawTitle, setDrawTitle] = useState(

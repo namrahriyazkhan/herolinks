@@ -100,7 +100,7 @@ export function CharityDirectory() {
       {/* Charity Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {filteredCharities.map((charity) => {
-          const isUserNominated = currentUser.charity_id === charity.id;
+          const isUserNominated = currentUser?.charity_id === charity.id;
 
           return (
             <div

@@ -39,9 +39,11 @@ export function DrawBoard() {
   }
 
   // Check if already submitted verification
-  const existingVerif = verifications.find(
-    (v) => v.draw_id === latestPublishedDraw.id && v.user_id === currentUser.id
-  );
+  const existingVerif = currentUser
+    ? verifications.find(
+        (v) => v.draw_id === latestPublishedDraw.id && v.user_id === currentUser.id
+      )
+    : null;
 
   return (
     <div className="space-y-8">
@@ -146,7 +148,7 @@ export function DrawBoard() {
                       <button
                         onClick={() =>
                           setSelectedProofEntry({
-                            drawEntryId: `entry-${currentUser.id}-${latestPublishedDraw.id}`,
+                            drawEntryId: `entry-${currentUser?.id || "guest"}-${latestPublishedDraw.id}`,
                             drawId: latestPublishedDraw.id,
                             drawTitle: latestPublishedDraw.title,
                             prizeAmount: wonPrize,

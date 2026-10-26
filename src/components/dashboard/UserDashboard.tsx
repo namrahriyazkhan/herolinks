@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { useApp } from "@/lib/store/app-context";
 import { ScoreManager } from "@/components/scores/ScoreManager";
 import { DrawBoard } from "@/components/draw/DrawBoard";
@@ -45,6 +46,41 @@ export function UserDashboard() {
     matchesCount: number;
     matchingNumbers: number[];
   } | null>(null);
+
+  if (!currentUser) {
+    return (
+      <div className="max-w-xl mx-auto py-16 text-center space-y-6">
+        <div className="w-16 h-16 rounded-full bg-[#143A2F] text-white flex items-center justify-center mx-auto shadow-lg">
+          <User className="w-8 h-8 text-[#E8C28A]" />
+        </div>
+        <div className="space-y-2">
+          <span className="font-mono text-xs text-[#C88D34] uppercase tracking-wider font-semibold">
+            § 03 · SUBSCRIBER PORTAL
+          </span>
+          <h2 className="font-serif italic text-3xl sm:text-4xl font-normal text-[#0D261E]">
+            Sign In to Access Your Portal
+          </h2>
+          <p className="text-sm text-[#485953] leading-relaxed">
+            Please sign in to manage your Stableford rounds, active draw tickets, and nominated charity allocations.
+          </p>
+        </div>
+        <div className="flex justify-center gap-3">
+          <Link
+            href="/login"
+            className="px-6 py-3 bg-[#143A2F] text-white rounded-xl text-sm font-semibold hover:bg-[#0D261E] transition-all"
+          >
+            Sign In to Account
+          </Link>
+          <Link
+            href="/signup"
+            className="px-6 py-3 bg-white border border-[#E8DEC0] text-[#0D261E] rounded-xl text-sm font-semibold hover:bg-[#F3ECE2] transition-all"
+          >
+            Subscribe & Join (§ 04)
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const selectedCharity =
     charities.find((c) => c.id === currentUser.charity_id) || charities[0];

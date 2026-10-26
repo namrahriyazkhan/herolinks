@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useApp } from "@/lib/store/app-context";
 import {
   Trophy,
@@ -13,8 +13,8 @@ import {
   Menu,
   X,
   ArrowRight,
-  CheckCircle2,
-  Calendar,
+  LogOut,
+  ShieldCheck,
 } from "lucide-react";
 
 interface NavbarProps {
@@ -24,7 +24,8 @@ interface NavbarProps {
 
 export function Navbar({ onOpenAuth, onOpenDonate }: NavbarProps) {
   const pathname = usePathname();
-  const { currentUser, switchUserRole, activeJackpot } = useApp();
+  const router = useRouter();
+  const { currentUser, logout, activeJackpot } = useApp();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [
@@ -35,9 +36,14 @@ export function Navbar({ onOpenAuth, onOpenDonate }: NavbarProps) {
     { label: "Admin Console", href: "/admin", adminOnly: true },
   ];
 
+  const handleLogout = () => {
+    logout();
+    router.push("/");
+  };
+
   return (
     <header className="sticky top-0 z-40 bg-[#FAF7F2]/95 backdrop-blur-md border-b border-[#E8DEC0]/60 transition-all">
-      {/* Top micro ticker for draw jackpot & role switcher */}
+      {/* Top micro ticker for draw jackpot & system status */}
       <div className="bg-[#0D261E] text-[#FAF7F2] text-xs px-4 py-1.5 flex flex-wrap items-center justify-between gap-2 border-b border-[#1A4235]">
         <div className="flex items-center gap-2">
           <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-[#C88D34]/20 text-[#E8C28A] font-medium border border-[#C88D34]/30">
@@ -53,33 +59,28 @@ export function Navbar({ onOpenAuth, onOpenDonate }: NavbarProps) {
           </span>
         </div>
 
-        {/* Quick Reviewer Role Switcher */}
-        <div className="flex items-center gap-2 text-xs">
-          <span className="text-white/60 hidden md:inline">Evaluator Mode:</span>
-          <div className="inline-flex rounded-md p-0.5 bg-[#143A2F] border border-white/10">
-            <button
-              onClick={() => switchUserRole("subscriber")}
-              className={`px-2.5 py-0.5 rounded text-[11px] font-medium transition-all ${
-                currentUser.role === "subscriber"
-                  ? "bg-[#C88D34] text-[#0D261E] font-semibold shadow-sm"
-                  : "text-white/80 hover:text-white"
-              }`}
-              title="Switch to Golfer view (Marcus Vance)"
-            >
-              Golfer View
-            </button>
-            <button
-              onClick={() => switchUserRole("admin")}
-              className={`px-2.5 py-0.5 rounded text-[11px] font-medium transition-all ${
-                currentUser.role === "admin"
-                  ? "bg-[#C88D34] text-[#0D261E] font-semibold shadow-sm"
-                  : "text-white/80 hover:text-white"
-              }`}
-              title="Switch to Admin view (Eleanor Rostova)"
-            >
-              Admin View
-            </button>
-          </div>
+        {/* Live Member / Session indicator */}
+        <div className="flex items-center gap-3 text-xs">
+          {currentUser ? (
+            <div className="flex items-center gap-2">
+              <span className="text-white/60 hidden sm:inline">Signed in as:</span>
+              <span className="text-[#E8C28A] font-bold">{currentUser.full_name}</span>
+              <span className="px-1.5 py-0.2 rounded text-[10px] bg-white/10 text-white font-mono uppercase">
+                {currentUser.role}
+              </span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3 text-[11px] font-mono">
+              <span className="text-white/60">Demo Evaluation:</span>
+              <Link
+                href="/login"
+                className="text-[#E8C28A] hover:underline flex items-center gap-1"
+              >
+                <span>Test Credentials</span>
+                <ArrowRight className="w-3 h-3" />
+              </Link>
+            </div>
+          )}
         </div>
       </div>
 
@@ -101,7 +102,7 @@ export function Navbar({ onOpenAuth, onOpenDonate }: NavbarProps) {
         {/* Desktop Nav Links */}
         <nav className="hidden md:flex items-center gap-7">
           {navLinks.map((link) => {
-            if (link.adminOnly && currentUser.role !== "admin") return null;
+            if (link.adminOnly && currentUser?.role !== "admin") return null;
             const isActive = pathname === link.href;
             return (
               <Link
@@ -119,35 +120,64 @@ export function Navbar({ onOpenAuth, onOpenDonate }: NavbarProps) {
           })}
         </nav>
 
-        {/* Actions */}
+        {/* Auth & Portal Actions */}
         <div className="hidden sm:flex items-center gap-3">
           {onOpenDonate && (
             <button
               onClick={onOpenDonate}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#143A2F] bg-[#FAF7F2] hover:bg-[#F3ECE2] border border-[#143A2F]/20 px-3 py-2 rounded-lg transition-all"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#143A2F] bg-[#FAF7F2] hover:bg-[#F3ECE2] border border-[#143A2F]/20 px-3 py-2 rounded-xl transition-all"
             >
               <Heart className="w-3.5 h-3.5 text-[#C88D34]" />
               Direct Gift
             </button>
           )}
 
-          {currentUser.role === "admin" ? (
-            <Link
-              href="/admin"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-[#0D261E] hover:bg-[#143A2F] px-4 py-2.5 rounded-lg shadow-sm transition-all"
-            >
-              <ShieldAlert className="w-3.5 h-3.5 text-[#E8C28A]" />
-              Admin Center
-            </Link>
+          {currentUser ? (
+            /* Logged in state */
+            <div className="flex items-center gap-2">
+              {currentUser.role === "admin" ? (
+                <Link
+                  href="/admin"
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-[#0D261E] hover:bg-[#143A2F] px-4 py-2.5 rounded-xl shadow-sm transition-all"
+                >
+                  <ShieldAlert className="w-3.5 h-3.5 text-[#E8C28A]" />
+                  Admin Center
+                </Link>
+              ) : (
+                <Link
+                  href="/dashboard"
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-[#143A2F] hover:bg-[#0D261E] px-4 py-2.5 rounded-xl shadow-sm transition-all"
+                >
+                  <User className="w-3.5 h-3.5 text-[#E8C28A]" />
+                  Golfer Portal
+                </Link>
+              )}
+
+              <button
+                onClick={handleLogout}
+                className="p-2 text-[#748780] hover:text-red-700 hover:bg-red-50 rounded-xl transition-colors border border-[#E8DEC0]"
+                title="Sign out of account"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            </div>
           ) : (
-            <Link
-              href="/dashboard"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-[#143A2F] hover:bg-[#0D261E] px-4 py-2.5 rounded-lg shadow-sm transition-all"
-            >
-              <User className="w-3.5 h-3.5 text-[#E8C28A]" />
-              Golfer Portal
-              <ArrowRight className="w-3 h-3" />
-            </Link>
+            /* Logged out state */
+            <div className="flex items-center gap-2">
+              <Link
+                href="/login"
+                className="px-4 py-2 text-xs font-semibold text-[#0D261E] hover:text-[#143A2F] hover:bg-[#F3ECE2] rounded-xl transition-all border border-[#E8DEC0]"
+              >
+                Sign In
+              </Link>
+              <Link
+                href="/signup"
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#143A2F] hover:bg-[#0D261E] text-white text-xs font-semibold rounded-xl shadow-sm transition-all"
+              >
+                <span>Subscribe (§ 04)</span>
+                <ArrowRight className="w-3 h-3 text-[#E8C28A]" />
+              </Link>
+            </div>
           )}
         </div>
 
@@ -178,21 +208,45 @@ export function Navbar({ onOpenAuth, onOpenDonate }: NavbarProps) {
               </Link>
             ))}
           </div>
+
           <div className="pt-2 flex flex-col gap-2">
-            <Link
-              href="/dashboard"
-              onClick={() => setMobileMenuOpen(false)}
-              className="text-center w-full py-2.5 bg-[#143A2F] text-white rounded-lg text-sm font-semibold"
-            >
-              Golfer Dashboard
-            </Link>
-            <Link
-              href="/admin"
-              onClick={() => setMobileMenuOpen(false)}
-              className="text-center w-full py-2.5 bg-[#0D261E] text-white rounded-lg text-sm font-semibold"
-            >
-              Admin Dashboard
-            </Link>
+            {currentUser ? (
+              <>
+                <Link
+                  href="/dashboard"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-center w-full py-2.5 bg-[#143A2F] text-white rounded-lg text-sm font-semibold"
+                >
+                  My Dashboard ({currentUser.full_name})
+                </Link>
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setMobileMenuOpen(false);
+                  }}
+                  className="text-center w-full py-2 text-xs text-red-700 font-semibold"
+                >
+                  Sign Out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-center w-full py-2.5 bg-white border border-[#E8DEC0] text-[#0D261E] rounded-lg text-sm font-semibold"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/signup"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-center w-full py-2.5 bg-[#143A2F] text-white rounded-lg text-sm font-semibold"
+                >
+                  Subscribe & Join
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}
