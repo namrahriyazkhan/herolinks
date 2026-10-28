@@ -127,6 +127,9 @@ interface AppContextType {
   // Stats (§ 11.05)
   stats: PlatformStats;
   donations: Donation[];
+
+  // Evaluator Helper
+  resetDemoState: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -690,6 +693,24 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     );
   };
 
+  const resetDemoState = () => {
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.removeItem(LOCAL_STORAGE_KEY);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    setAllUsers(DEMO_USERS);
+    setCurrentUser(DEMO_USERS[0]);
+    setAllScores(INITIAL_SCORES);
+    setCharities(INITIAL_CHARITIES);
+    setDraws(INITIAL_DRAWS);
+    setVerifications(INITIAL_VERIFICATIONS);
+    setStats(INITIAL_PLATFORM_STATS);
+    setDonations([]);
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -725,6 +746,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         markPayoutCompleted,
         stats,
         donations,
+        resetDemoState,
       }}
     >
       {children}

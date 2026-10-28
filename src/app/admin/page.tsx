@@ -12,7 +12,7 @@ export default function AdminPage() {
   const [donateModalOpen, setDonateModalOpen] = useState(false);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF7F2]">
+    <div className="min-h-screen flex flex-col bg-[#FAF6EB]">
       <Navbar
         onOpenAuth={() => setAuthModalOpen(true)}
         onOpenDonate={() => setDonateModalOpen(true)}

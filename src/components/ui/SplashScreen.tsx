@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Sparkles, ArrowRight, ShieldCheck, Heart } from "lucide-react";
+import { Sparkles, Trophy, Heart, ArrowRight } from "lucide-react";
 
 interface SplashScreenProps {
   onComplete?: () => void;
@@ -10,44 +10,49 @@ interface SplashScreenProps {
 
 export function SplashScreen({ onComplete, forceShow = false }: SplashScreenProps) {
   const [visible, setVisible] = useState(false);
-  const [phase, setPhase] = useState<1 | 2 | 3 | 4>(1);
-  const [counter, setCounter] = useState(0);
+  const [phase, setPhase] = useState<number>(1);
+  const [counter, setCounter] = useState<number>(128450);
 
   useEffect(() => {
-    // Check if already viewed in this browser session
+    // Check if user already saw splash in this session
     const hasViewed = sessionStorage.getItem("dh_splash_viewed");
     if (!hasViewed || forceShow) {
       setVisible(true);
-
-      // Phase 1 -> 2
-      const t1 = setTimeout(() => setPhase(2), 1000);
-      // Phase 2 -> 3
-      const t2 = setTimeout(() => setPhase(3), 2200);
-      // Phase 3 -> 4
-      const t3 = setTimeout(() => setPhase(4), 3600);
-
-      // Animate charity counter from 0 to 142850
-      let start = 0;
-      const target = 142850;
-      const step = 40;
-      const timer = setInterval(() => {
-        start += Math.ceil((target - start) / 10);
-        if (start >= target) {
-          setCounter(target);
-          clearInterval(timer);
-        } else {
-          setCounter(start);
-        }
-      }, step);
-
-      return () => {
-        clearTimeout(t1);
-        clearTimeout(t2);
-        clearTimeout(t3);
-        clearInterval(timer);
-      };
     }
   }, [forceShow]);
+
+  useEffect(() => {
+    if (!visible) return;
+
+    // Phase sequencing:
+    // 1: Brand reveal (0s - 1.2s)
+    // 2: Narrative statement (1.2s - 2.4s)
+    // 3: Community counter live roll (2.4s - 3.8s)
+    // 4: Enter button highlight
+    const t1 = setTimeout(() => setPhase(2), 1200);
+    const t2 = setTimeout(() => setPhase(3), 2400);
+    const t3 = setTimeout(() => setPhase(4), 3800);
+
+    // Number ticker roll
+    const interval = setInterval(() => {
+      setCounter((prev) => prev + Math.floor(Math.random() * 85) + 15);
+    }, 120);
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" || e.key === "Enter" || e.key === " ") {
+        handleDismiss();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      clearInterval(interval);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [forceShow, visible]);
 
   const handleDismiss = () => {
     sessionStorage.setItem("dh_splash_viewed", "true");
@@ -58,16 +63,16 @@ export function SplashScreen({ onComplete, forceShow = false }: SplashScreenProp
   if (!visible) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#071712] text-[#FAF7F2] flex flex-col justify-between p-6 sm:p-12 overflow-hidden select-none transition-opacity duration-700 animate-in fade-in">
+    <div className="fixed inset-0 z-50 bg-[#041220] text-[#FFFDF7] flex flex-col justify-between p-6 sm:p-12 overflow-hidden select-none transition-opacity duration-700 animate-in fade-in">
       {/* Background ambient editorial grid & glow */}
       <div className="absolute inset-0 opacity-10 pointer-events-none bg-[radial-gradient(#C88D34_1px,transparent_1px)] [background-size:32px_32px]"></div>
       <div className="absolute -top-32 -right-32 w-96 h-96 bg-[#C88D34]/15 rounded-full blur-3xl pointer-events-none"></div>
-      <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-[#143A2F]/40 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-[#0D3B66]/40 rounded-full blur-3xl pointer-events-none"></div>
 
       {/* Top Header Masthead */}
       <div className="relative z-10 flex items-center justify-between border-b border-white/10 pb-4">
         <div className="flex items-center gap-3">
-          <span className="font-mono text-xs text-[#E8C28A] tracking-widest uppercase">
+          <span className="font-mono text-xs text-[#FFF2BA] tracking-widest uppercase">
             § 00 · PRODUCT REQUIREMENTS · 2026 EDITION
           </span>
           <span className="hidden sm:inline text-white/30">•</span>
@@ -78,7 +83,7 @@ export function SplashScreen({ onComplete, forceShow = false }: SplashScreenProp
 
         <button
           onClick={handleDismiss}
-          className="text-xs font-mono text-[#FAF7F2]/60 hover:text-white border border-white/20 hover:border-white/50 px-3 py-1 rounded-full transition-all"
+          className="text-xs font-mono text-white/60 hover:text-white border border-white/20 hover:border-white/50 px-3 py-1 rounded-full transition-all"
         >
           Skip Intro [Esc] ✕
         </button>
@@ -113,15 +118,15 @@ export function SplashScreen({ onComplete, forceShow = false }: SplashScreenProp
         {/* Brand & Mascot Lockup */}
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
           {/* SVG Line-art Superhero Mascot (homage to PRD Page 1 astronaut with cape) */}
-          <div className="w-24 h-24 rounded-2xl bg-[#143A2F]/80 border border-[#C88D34]/40 p-4 shrink-0 flex items-center justify-center shadow-2xl relative group">
+          <div className="w-24 h-24 rounded-2xl bg-[#072847]/90 border border-[#C88D34]/40 p-4 shrink-0 flex items-center justify-center shadow-2xl relative group">
             <svg
               viewBox="0 0 100 100"
-              className="w-full h-full text-[#E8C28A] stroke-current fill-none stroke-[2.5] stroke-linecap-round stroke-linejoin-round"
+              className="w-full h-full text-[#FFF2BA] stroke-current fill-none stroke-[2.5] stroke-linecap-round stroke-linejoin-round"
             >
               {/* Helmet circle */}
               <circle cx="50" cy="30" r="16" />
               {/* Visor inner */}
-              <path d="M42 28 C45 24 55 24 58 28 C58 33 42 33 42 28 Z" fill="#E8C28A" opacity="0.3" />
+              <path d="M42 28 C45 24 55 24 58 28 C58 33 42 33 42 28 Z" fill="#FFF2BA" opacity="0.3" />
               {/* Antenna */}
               <line x1="50" y1="14" x2="50" y2="8" />
               <circle cx="50" cy="7" r="2" fill="#C88D34" />
@@ -146,11 +151,11 @@ export function SplashScreen({ onComplete, forceShow = false }: SplashScreenProp
               <span className="font-sans font-black text-3xl sm:text-5xl tracking-tight text-white">
                 digital<span className="text-[#C88D34]">.</span>
               </span>
-              <span className="font-serif italic font-normal text-4xl sm:text-6xl text-[#E8C28A]">
+              <span className="font-serif italic font-normal text-4xl sm:text-6xl text-[#FFF2BA]">
                 HEROES
               </span>
             </div>
-            <p className="font-mono text-xs sm:text-sm text-[#BDE3D5]/80 uppercase tracking-widest">
+            <p className="font-mono text-xs sm:text-sm text-[#C1DBE8] uppercase tracking-widest">
               Six core objectives · One owned platform · Level 1
             </p>
           </div>
@@ -159,17 +164,17 @@ export function SplashScreen({ onComplete, forceShow = false }: SplashScreenProp
         {/* Narrative Revelations based on Phase */}
         <div className="min-h-[140px] flex flex-col justify-center space-y-3">
           {phase === 1 && (
-            <h2 className="font-serif italic text-3xl sm:text-5xl text-[#FAF7F2] font-light leading-tight animate-in fade-in slide-in-from-bottom-2 duration-500">
+            <h2 className="font-serif italic text-3xl sm:text-5xl text-[#FFFDF7] font-light leading-tight animate-in fade-in slide-in-from-bottom-2 duration-500">
               “Feel, not fairway.”
             </h2>
           )}
 
           {phase === 2 && (
             <div className="space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-500">
-              <span className="font-mono text-xs text-[#E8C28A] uppercase tracking-wider">
+              <span className="font-mono text-xs text-[#FFF2BA] uppercase tracking-wider">
                 Platform Philosophy
               </span>
-              <h2 className="font-serif italic text-2xl sm:text-4xl text-[#FAF7F2] font-light leading-tight">
+              <h2 className="font-serif italic text-2xl sm:text-4xl text-[#FFFDF7] font-light leading-tight">
                 Where every Stableford point logged carries weight beyond the scorecard.
               </h2>
             </div>
@@ -177,13 +182,13 @@ export function SplashScreen({ onComplete, forceShow = false }: SplashScreenProp
 
           {phase >= 3 && (
             <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-500">
-              <span className="font-mono text-xs text-[#E8C28A] uppercase tracking-wider">
+              <span className="font-mono text-xs text-[#FFF2BA] uppercase tracking-wider">
                 Audited Social Impact Live Counter
               </span>
               <div className="font-serif italic text-5xl sm:text-7xl font-bold text-white tracking-tight">
                 £{counter.toLocaleString("en-GB")}
               </div>
-              <p className="text-xs sm:text-sm text-[#BDE3D5]/80 max-w-lg font-light">
+              <p className="text-xs sm:text-sm text-[#C1DBE8] max-w-lg font-light">
                 Directly disbursed to vetted youth access, medical neurology rehabilitation,
                 and coastal dunes conservation initiatives.
               </p>
@@ -195,7 +200,7 @@ export function SplashScreen({ onComplete, forceShow = false }: SplashScreenProp
         <div className="pt-4 flex flex-col sm:flex-row items-center gap-4">
           <button
             onClick={handleDismiss}
-            className="w-full sm:w-auto px-8 py-4 bg-[#C88D34] hover:bg-[#E09F45] text-[#071712] font-serif italic text-lg font-bold rounded-2xl shadow-2xl flex items-center justify-center gap-3 transition-all transform hover:scale-[1.02]"
+            className="w-full sm:w-auto px-8 py-4 bg-[#C88D34] hover:bg-[#915E12] text-white font-serif italic text-lg font-bold rounded-2xl shadow-2xl flex items-center justify-center gap-3 transition-all transform hover:scale-[1.02]"
           >
             <span>Enter Digital Heroes Experience</span>
             <ArrowRight className="w-5 h-5" />
@@ -213,7 +218,7 @@ export function SplashScreen({ onComplete, forceShow = false }: SplashScreenProp
         <div className="flex items-center gap-3">
           <span>St Andrews / Sunningdale / Carnoustie Links</span>
           <span>•</span>
-          <span className="text-[#E8C28A]">40 / 35 / 25 Enforced</span>
+          <span className="text-[#FFF2BA]">40 / 35 / 25 Enforced</span>
         </div>
       </div>
     </div>

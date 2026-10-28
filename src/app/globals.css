@@ -1,49 +1,108 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600;1,700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,600&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Cinzel:wght@600;700;800;900&display=swap');
 @import "tailwindcss";
+
+@theme {
+  --font-serif: 'Cormorant Garamond', 'Newsreader', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-display: 'Playfair Display', 'Cinzel', var(--font-serif), Georgia, serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  /* Pinterest Palette: Lemon Chiffon & Buttermilk Warm Canvas */
+  --color-chiffon-50: #FFFDF7;
+  --color-chiffon-100: #FFF9E0;
+  --color-chiffon-200: #FFF2BA; /* Buttermilk #FFF2BA */
+  --color-chiffon-300: #FAF0CA; /* Lemon Chiffon #FAF0CA */
+  --color-chiffon-400: #F3E29F;
+  --color-chiffon-500: #E5CD70;
+
+  /* Pinterest Palette: Yale Blue & Midnight Blue */
+  --color-yale-950: #041220;
+  --color-yale-900: #072847; /* Midnight Blue #073C65 / #072847 */
+  --color-yale-800: #0D3B66; /* Yale Blue #0D3B66 */
+  --color-yale-700: #144E85;
+  --color-yale-600: #1C65A8;
+  --color-yale-500: #297CBF;
+  --color-yale-100: #E2EEF8;
+  --color-yale-50: #F0F6FB;
+
+  /* Pinterest Palette: Pastel Blue */
+  --color-pastel-50: #F4F9FC;
+  --color-pastel-100: #E3EFF6;
+  --color-pastel-200: #D0E4EE;
+  --color-pastel-300: #C1DBE8; /* Pastel Blue #C1DBE8 */
+  --color-pastel-400: #A2C8DC;
+  --color-pastel-500: #78ABC5;
+
+  /* Pinterest Palette: Old Burgundy */
+  --color-burgundy-950: #1F1413;
+  --color-burgundy-900: #2C1E1D;
+  --color-burgundy-800: #43302E; /* Old Burgundy #43302E */
+  --color-burgundy-700: #5C4240;
+
+  /* Legacy Ivory Aliases mapped to Lemon Chiffon / Buttermilk */
+  --color-ivory-50: #FFFDF7;
+  --color-ivory-100: #FAF6EB;
+  --color-ivory-200: #F5EED9;
+  --color-ivory-300: #EFE4C4;
+  --color-ivory-400: #FAF0CA;
+
+  /* Legacy Forest Aliases gracefully mapped to Yale & Midnight Blue */
+  --color-forest-950: #041220;
+  --color-forest-900: #072847;
+  --color-forest-800: #0D3B66;
+  --color-forest-700: #144E85;
+  --color-forest-600: #1C65A8;
+  --color-forest-500: #297CBF;
+  --color-forest-100: #E2EEF8;
+  --color-forest-50: #F0F6FB;
+
+  /* Championship Gold & Ochre Accents */
+  --color-gold-900: #6B430B;
+  --color-gold-800: #915E12;
+  --color-gold-600: #B37A24;
+  --color-gold-500: #C88D34;
+  --color-gold-400: #DBA149;
+  --color-gold-200: #F3DEB2;
+  --color-gold-100: #FAF0CA;
+  --color-gold-50: #FFFDF7;
+
+  /* Editorial Inks (Midnight Navy / Slate) */
+  --color-ink-950: #051424;
+  --color-ink-900: #0A1C2C;
+  --color-ink-700: #1C334A;
+  --color-ink-500: #3E5A74;
+  --color-ink-400: #6786A3;
+  --color-ink-200: #C1DBE8;
+  --color-ink-100: #E5F0F7;
+}
 
 @layer base {
   :root {
-    --font-serif: 'Newsreader', Georgia, serif;
+    --font-serif: 'Cormorant Garamond', 'Newsreader', Georgia, serif;
     --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-    
-    /* Warm Ivory & Natural Editorial Palette */
-    --ivory-base: #FAF7F2;
-    --ivory-card: #FFFFFF;
-    --ivory-muted: #F3ECE2;
-    --ivory-border: #E8DEC0;
-    
-    /* Heritage Forest Green Palette */
-    --forest-deep: #0D261E;
-    --forest-primary: #143A2F;
-    --forest-light: #215444;
-    --forest-surface: #E8F1ED;
-    --forest-accent: #377360;
-
-    /* Warm Gold / Amber Accent for awards & jackpots */
-    --gold-accent: #C88D34;
-    --gold-soft: #F9EED9;
-    --gold-deep: #915E12;
-
-    /* Charcoal text with subtle green undertone */
-    --text-primary: #121F1A;
-    --text-secondary: #485953;
-    --text-muted: #748780;
+    --font-display: 'Playfair Display', 'Cinzel', serif;
   }
 
   body {
-    background-color: var(--ivory-base);
-    color: var(--text-primary);
+    background-color: #FAF6EB;
+    color: #0A1C2C;
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
   h1, h2, h3, .font-serif-heading {
     font-family: var(--font-serif);
     letter-spacing: -0.02em;
+    font-feature-settings: "liga", "dlig", "kern";
   }
 }
 
-/* Editorial styling utilities */
+/* ========================================================================= */
+/* LUXURY EDITORIAL UTILITIES & TEXTURES */
+/* ========================================================================= */
+
 .font-serif {
   font-family: var(--font-serif);
 }
@@ -52,58 +111,169 @@
   font-family: var(--font-sans);
 }
 
+.font-display {
+  font-family: var(--font-display);
+}
+
+/* Fine linen paper texture with Yale Blue & Buttermilk subtle grain */
+.paper-texture {
+  background-color: #FAF6EB;
+  background-image: 
+    radial-gradient(#0D3B66 0.65px, transparent 0.65px),
+    radial-gradient(#C88D34 0.45px, transparent 0.45px);
+  background-size: 28px 28px, 42px 42px;
+  background-position: 0 0, 14px 14px;
+}
+
+/* Luxury drop shadows with Yale Blue undertones */
+.editorial-shadow-sm {
+  box-shadow: 0 2px 8px -1px rgba(13, 59, 102, 0.05), 0 1px 3px -1px rgba(13, 59, 102, 0.03);
+}
+
 .editorial-shadow {
-  box-shadow: 0 4px 20px -2px rgba(13, 38, 30, 0.05), 0 2px 6px -1px rgba(13, 38, 30, 0.03);
+  box-shadow: 0 8px 24px -4px rgba(13, 59, 102, 0.07), 0 2px 8px -2px rgba(13, 59, 102, 0.04);
 }
 
 .editorial-shadow-lg {
-  box-shadow: 0 12px 36px -4px rgba(13, 38, 30, 0.09), 0 4px 12px -2px rgba(13, 38, 30, 0.04);
+  box-shadow: 0 20px 48px -8px rgba(13, 59, 102, 0.12), 0 6px 16px -3px rgba(13, 59, 102, 0.06);
 }
 
-.paper-texture {
-  background-color: #FAF7F2;
-  background-image: radial-gradient(#143A2F 0.5px, transparent 0.5px);
-  background-size: 24px 24px;
-  background-position: 0 0;
-  opacity: 0.98;
+.editorial-shadow-xl {
+  box-shadow: 0 28px 64px -12px rgba(7, 40, 71, 0.22), 0 8px 24px -4px rgba(7, 40, 71, 0.1);
 }
 
-/* Custom delicate scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: #FAF7F2;
-}
-::-webkit-scrollbar-thumb {
-  background: #C4D6CD;
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #8FAEA2;
+.gold-glow {
+  box-shadow: 0 0 28px -4px rgba(200, 141, 52, 0.35);
 }
 
-/* Number badge styles */
-.lottery-ball {
+.yale-glow {
+  box-shadow: 0 0 32px -6px rgba(13, 59, 102, 0.45);
+}
+
+.forest-glow {
+  box-shadow: 0 0 32px -6px rgba(13, 59, 102, 0.45);
+}
+
+/* Gilded gold gradient text */
+.gold-foil-text {
+  background: linear-gradient(135deg, #A86B1E 0%, #C88D34 30%, #FFF2BA 60%, #B37A24 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.yale-gradient-text {
+  background: linear-gradient(135deg, #072847 0%, #0D3B66 60%, #1C65A8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.forest-gradient-text {
+  background: linear-gradient(135deg, #072847 0%, #0D3B66 60%, #1C65A8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Authentic physical ticket styling with perforated edge notches */
+.ticket-notch-left {
+  position: relative;
+}
+.ticket-notch-left::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  background-color: #FAF6EB;
+  border-radius: 9999px;
+  border-right: 1px solid #EFE4C4;
+  z-index: 10;
+}
+
+.ticket-notch-right {
+  position: relative;
+}
+.ticket-notch-right::after {
+  content: '';
+  position: absolute;
+  right: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  background-color: #FAF6EB;
+  border-radius: 9999px;
+  border-left: 1px solid #EFE4C4;
+  z-index: 10;
+}
+
+/* Premium 3D spherical lottery ball */
+.lottery-ball-3d {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 9999px;
-  font-weight: 700;
+  font-weight: 800;
   font-feature-settings: "tnum";
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 
+    inset -3px -4px 8px rgba(0, 0, 0, 0.35),
+    inset 3px 4px 6px rgba(255, 255, 255, 0.7),
+    0 8px 16px -2px rgba(7, 40, 71, 0.28);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes pulseGlow {
+.lottery-ball-3d:hover {
+  transform: translateY(-3px) scale(1.06);
+  box-shadow: 
+    inset -3px -4px 8px rgba(0, 0, 0, 0.35),
+    inset 3px 4px 6px rgba(255, 255, 255, 0.8),
+    0 14px 24px -2px rgba(200, 141, 52, 0.38);
+}
+
+/* Refined custom scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #FAF6EB;
+}
+::-webkit-scrollbar-thumb {
+  background: #C1DBE8;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #0D3B66;
+}
+
+/* Animations */
+@keyframes pulseGoldGlow {
   0%, 100% {
-    box-shadow: 0 0 0 0 rgba(200, 141, 52, 0.4);
+    box-shadow: 0 0 0 0 rgba(200, 141, 52, 0.5);
   }
   50% {
-    box-shadow: 0 0 0 8px rgba(200, 141, 52, 0);
+    box-shadow: 0 0 0 10px rgba(200, 141, 52, 0);
   }
 }
 
 .animate-gold-pulse {
-  animation: pulseGlow 2.5s infinite;
+  animation: pulseGoldGlow 2.4s infinite;
 }
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.gold-shimmer-btn {
+  background: linear-gradient(90deg, #072847 0%, #0D3B66 35%, #C88D34 50%, #0D3B66 65%, #072847 100%);
+  background-size: 250% 100%;
+  animation: shimmer 4s infinite linear;
+}
+

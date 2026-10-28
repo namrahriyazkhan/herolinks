@@ -30,7 +30,7 @@ export function Navbar({ onOpenAuth, onOpenDonate }: NavbarProps) {
 
   const navLinks = [
     { label: "Overview", href: "/" },
-    { label: "The Draw", href: "/#draw-mechanics" },
+    { label: "The Draw", href: "/draw" },
     { label: "Charities", href: "/charities" },
     { label: "Golfer Dashboard", href: "/dashboard" },
     { label: "Admin Console", href: "/admin", adminOnly: true },
@@ -42,42 +42,43 @@ export function Navbar({ onOpenAuth, onOpenDonate }: NavbarProps) {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-[#FAF7F2]/95 backdrop-blur-md border-b border-[#E8DEC0]/60 transition-all">
+    <header className="sticky top-0 z-40 bg-[#FAF6EB]/90 backdrop-blur-xl border-b border-[#EFE4C4]/80 shadow-[0_4px_24px_rgba(7,40,71,0.04)] transition-all">
       {/* Top micro ticker for draw jackpot & system status */}
-      <div className="bg-[#0D261E] text-[#FAF7F2] text-xs px-4 py-1.5 flex flex-wrap items-center justify-between gap-2 border-b border-[#1A4235]">
-        <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-[#C88D34]/20 text-[#E8C28A] font-medium border border-[#C88D34]/30">
-            <Sparkles className="w-3 h-3 text-[#E8C28A]" />
-            Monthly Jackpot
+      <div className="bg-[#072847] text-[#FAF6EB] text-xs px-4 sm:px-6 py-2 flex flex-wrap items-center justify-between gap-3 border-b border-[#0D3B66]/70">
+        <div className="flex items-center gap-3">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#C88D34]/25 text-[#FFF2BA] font-semibold text-[11px] border border-[#C88D34]/40 shadow-sm animate-gold-pulse">
+            <Sparkles className="w-3.5 h-3.5 text-[#F3DEB2]" />
+            Monthly Jackpot Pool
           </span>
-          <span className="font-semibold text-white tracking-wide">
+          <span className="font-serif italic font-bold text-white tracking-wide text-sm">
             £{activeJackpot.toLocaleString("en-GB")} Available
           </span>
-          <span className="hidden sm:inline text-white/50">•</span>
-          <span className="hidden sm:inline text-white/70">
-            100% transparent 40/35/25 distribution
+          <span className="hidden sm:inline text-white/30">•</span>
+          <span className="hidden md:inline text-[#C1DBE8] text-[11px] font-sans">
+            Guaranteed 40 / 35 / 25 Tier Distribution + Jackpot Rollover
           </span>
         </div>
 
         {/* Live Member / Session indicator */}
         <div className="flex items-center gap-3 text-xs">
           {currentUser ? (
-            <div className="flex items-center gap-2">
-              <span className="text-white/60 hidden sm:inline">Signed in as:</span>
-              <span className="text-[#E8C28A] font-bold">{currentUser.full_name}</span>
-              <span className="px-1.5 py-0.2 rounded text-[10px] bg-white/10 text-white font-mono uppercase">
+            <div className="flex items-center gap-2 bg-white/10 px-3 py-1 rounded-full border border-white/15">
+              <span className="w-2 h-2 rounded-full bg-emerald-400" />
+              <span className="text-white/70 hidden sm:inline text-[11px]">Logged in:</span>
+              <span className="text-[#FFF2BA] font-semibold text-xs">{currentUser.full_name}</span>
+              <span className="px-1.5 py-0.2 rounded text-[10px] bg-white/15 text-white font-mono uppercase tracking-wider font-semibold">
                 {currentUser.role}
               </span>
             </div>
           ) : (
             <div className="flex items-center gap-3 text-[11px] font-mono">
-              <span className="text-white/60">Demo Evaluation:</span>
+              <span className="text-white/60">PRD 2026 Evaluation:</span>
               <Link
                 href="/login"
-                className="text-[#E8C28A] hover:underline flex items-center gap-1"
+                className="text-[#FFF2BA] hover:text-white hover:underline flex items-center gap-1 font-semibold transition-colors"
               >
-                <span>Test Credentials</span>
-                <ArrowRight className="w-3 h-3" />
+                <span>Instant Sign-In</span>
+                <ArrowRight className="w-3 h-3 text-[#C88D34]" />
               </Link>
             </div>
           )}
@@ -87,20 +88,20 @@ export function Navbar({ onOpenAuth, onOpenDonate }: NavbarProps) {
       {/* Main navigation */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
         {/* Brand Lockup */}
-        <Link href="/" className="flex items-baseline gap-1.5 group">
-          <span className="font-sans font-extrabold text-xl tracking-tight text-[#0D261E]">
-            digital<span className="text-[#C88D34]">.</span>
+        <Link href="/" className="flex items-baseline gap-1.5 group select-none">
+          <span className="font-sans font-extrabold text-2xl tracking-tight text-[#072847]">
+            digital<span className="text-[#C88D34] group-hover:scale-125 inline-block transition-transform">.</span>
           </span>
-          <span className="font-serif italic font-semibold text-2xl tracking-normal text-[#143A2F] group-hover:text-[#C88D34] transition-colors">
+          <span className="font-serif italic font-semibold text-2xl tracking-normal text-[#0D3B66] group-hover:text-[#C88D34] transition-colors">
             HEROES
           </span>
-          <span className="hidden sm:inline-block ml-2 text-[10px] uppercase font-mono tracking-widest text-[#748780] border border-[#E8DEC0] rounded px-1.5 py-0.5">
-            2026 PRD
+          <span className="hidden sm:inline-block ml-2 text-[10px] uppercase font-mono tracking-widest text-[#0D3B66] bg-[#FAF0CA] border border-[#EFE4C4] rounded-md px-2 py-0.5 shadow-2xs font-bold">
+            Feel, Not Fairway
           </span>
         </Link>
 
         {/* Desktop Nav Links */}
-        <nav className="hidden md:flex items-center gap-7">
+        <nav className="hidden md:flex items-center gap-1.5">
           {navLinks.map((link) => {
             if (link.adminOnly && currentUser?.role !== "admin") return null;
             const isActive = pathname === link.href;
@@ -108,10 +109,10 @@ export function Navbar({ onOpenAuth, onOpenDonate }: NavbarProps) {
               <Link
                 key={link.label}
                 href={link.href}
-                className={`text-sm font-medium transition-colors ${
+                className={`text-sm font-semibold px-3.5 py-2 rounded-xl transition-all ${
                   isActive
-                    ? "text-[#0D261E] font-semibold border-b-2 border-[#143A2F] pb-1"
-                    : "text-[#485953] hover:text-[#0D261E]"
+                    ? "bg-[#0D3B66] text-[#FFF2BA] shadow-sm border border-[#0D3B66]"
+                    : "text-[#1C334A] hover:text-[#0D3B66] hover:bg-[#FFF2BA]/50"
                 }`}
               >
                 {link.label}
@@ -125,10 +126,10 @@ export function Navbar({ onOpenAuth, onOpenDonate }: NavbarProps) {
           {onOpenDonate && (
             <button
               onClick={onOpenDonate}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#143A2F] bg-[#FAF7F2] hover:bg-[#F3ECE2] border border-[#143A2F]/20 px-3 py-2 rounded-xl transition-all"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0D3B66] bg-white hover:bg-[#FFF2BA]/50 border border-[#C88D34]/40 hover:border-[#C88D34] px-3.5 py-2.5 rounded-xl shadow-2xs hover:shadow-sm transition-all transform hover:-translate-y-0.5"
             >
-              <Heart className="w-3.5 h-3.5 text-[#C88D34]" />
-              Direct Gift
+              <Heart className="w-3.5 h-3.5 text-[#C88D34] fill-[#C88D34]/20" />
+              <span>Direct Gift</span>
             </button>
           )}
 
@@ -138,24 +139,24 @@ export function Navbar({ onOpenAuth, onOpenDonate }: NavbarProps) {
               {currentUser.role === "admin" ? (
                 <Link
                   href="/admin"
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-[#0D261E] hover:bg-[#143A2F] px-4 py-2.5 rounded-xl shadow-sm transition-all"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-[#FFF2BA] bg-[#072847] hover:bg-[#0D3B66] border border-[#C88D34]/40 px-4 py-2.5 rounded-xl shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5"
                 >
-                  <ShieldAlert className="w-3.5 h-3.5 text-[#E8C28A]" />
-                  Admin Center
+                  <ShieldAlert className="w-3.5 h-3.5 text-[#F3DEB2]" />
+                  <span>Admin Console</span>
                 </Link>
               ) : (
                 <Link
                   href="/dashboard"
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-[#143A2F] hover:bg-[#0D261E] px-4 py-2.5 rounded-xl shadow-sm transition-all"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-[#FFF2BA] bg-[#0D3B66] hover:bg-[#072847] border border-white/20 px-4 py-2.5 rounded-xl shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5"
                 >
-                  <User className="w-3.5 h-3.5 text-[#E8C28A]" />
-                  Golfer Portal
+                  <User className="w-3.5 h-3.5 text-[#F3DEB2]" />
+                  <span>Golfer Portal</span>
                 </Link>
               )}
 
               <button
                 onClick={handleLogout}
-                className="p-2 text-[#748780] hover:text-red-700 hover:bg-red-50 rounded-xl transition-colors border border-[#E8DEC0]"
+                className="p-2.5 text-[#6786A3] hover:text-red-700 hover:bg-red-50 rounded-xl transition-all border border-[#EFE4C4]"
                 title="Sign out of account"
               >
                 <LogOut className="w-4 h-4" />
@@ -163,19 +164,19 @@ export function Navbar({ onOpenAuth, onOpenDonate }: NavbarProps) {
             </div>
           ) : (
             /* Logged out state */
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5">
               <Link
                 href="/login"
-                className="px-4 py-2 text-xs font-semibold text-[#0D261E] hover:text-[#143A2F] hover:bg-[#F3ECE2] rounded-xl transition-all border border-[#E8DEC0]"
+                className="px-4 py-2.5 text-xs font-bold text-[#072847] hover:text-[#0D3B66] hover:bg-[#FFF2BA]/50 rounded-xl transition-all border border-[#EFE4C4]"
               >
                 Sign In
               </Link>
               <Link
                 href="/signup"
-                className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#143A2F] hover:bg-[#0D261E] text-white text-xs font-semibold rounded-xl shadow-sm transition-all"
+                className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-[#0D3B66] hover:bg-[#072847] text-[#FFF2BA] text-xs font-bold rounded-xl shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5"
               >
-                <span>Subscribe (§ 04)</span>
-                <ArrowRight className="w-3 h-3 text-[#E8C28A]" />
+                <span>Subscribe & Join</span>
+                <ArrowRight className="w-3.5 h-3.5 text-[#C88D34]" />
               </Link>
             </div>
           )}
@@ -185,7 +186,7 @@ export function Navbar({ onOpenAuth, onOpenDonate }: NavbarProps) {
         <div className="flex sm:hidden items-center gap-2">
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 rounded-lg text-[#143A2F] hover:bg-[#F3ECE2]"
+            className="p-2 rounded-lg text-[#0D3B66] hover:bg-[#FFF2BA]/50"
             aria-label="Toggle menu"
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -195,14 +196,14 @@ export function Navbar({ onOpenAuth, onOpenDonate }: NavbarProps) {
 
       {/* Mobile menu dropdown */}
       {mobileMenuOpen && (
-        <div className="sm:hidden bg-[#FAF7F2] border-b border-[#E8DEC0] px-4 pt-2 pb-6 space-y-3">
+        <div className="sm:hidden bg-[#FAF6EB] border-b border-[#EFE4C4] px-4 pt-2 pb-6 space-y-3">
           <div className="flex flex-col space-y-2">
             {navLinks.map((link) => (
               <Link
                 key={link.label}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="text-base font-medium text-[#143A2F] py-2 border-b border-[#E8DEC0]/40"
+                className="text-base font-medium text-[#0D3B66] py-2 border-b border-[#EFE4C4]/60"
               >
                 {link.label}
               </Link>
@@ -215,7 +216,7 @@ export function Navbar({ onOpenAuth, onOpenDonate }: NavbarProps) {
                 <Link
                   href="/dashboard"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="text-center w-full py-2.5 bg-[#143A2F] text-white rounded-lg text-sm font-semibold"
+                  className="text-center w-full py-2.5 bg-[#0D3B66] text-[#FFF2BA] rounded-lg text-sm font-semibold"
                 >
                   My Dashboard ({currentUser.full_name})
                 </Link>
@@ -234,14 +235,14 @@ export function Navbar({ onOpenAuth, onOpenDonate }: NavbarProps) {
                 <Link
                   href="/login"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="text-center w-full py-2.5 bg-white border border-[#E8DEC0] text-[#0D261E] rounded-lg text-sm font-semibold"
+                  className="text-center w-full py-2.5 bg-white border border-[#EFE4C4] text-[#072847] rounded-lg text-sm font-semibold"
                 >
                   Sign In
                 </Link>
                 <Link
                   href="/signup"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="text-center w-full py-2.5 bg-[#143A2F] text-white rounded-lg text-sm font-semibold"
+                  className="text-center w-full py-2.5 bg-[#0D3B66] text-[#FFF2BA] rounded-lg text-sm font-semibold"
                 >
                   Subscribe & Join
                 </Link>

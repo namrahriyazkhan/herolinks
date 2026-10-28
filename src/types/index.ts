@@ -46,17 +46,24 @@ export interface CharityImpactMetric {
   value: string;
 }
 
+export type CharityCategory =
+  | "Youth & Access"
+  | "Health & Medical"
+  | "Veterans & Rehabilitation"
+  | "Environmental & Links Care";
+
 export interface Charity {
   id: string;
   name: string;
   slug: string;
   tagline: string;
   description: string;
-  category: "Youth & Access" | "Health & Medical" | "Veterans & Rehabilitation" | "Environmental & Links Care";
+  category: CharityCategory;
   hero_image_url: string;
   logo_url?: string;
   featured: boolean;
   total_raised: number;
+  impact_summary?: string;
   impact_metrics: CharityImpactMetric[];
   upcoming_events: CharityEvent[];
   website_url: string;

@@ -23,6 +23,8 @@ export const metadata: Metadata = {
   keywords: ["golf charity", "stableford scores", "charity draw", "digital heroes", "golf impact platform"],
 };
 
+import { EvaluatorBar } from "@/components/layout/EvaluatorBar";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -33,8 +35,11 @@ export default function RootLayout({
       lang="en"
       className={`${newsreader.variable} ${plusJakartaSans.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[#FAF7F2] text-[#13201B] font-sans selection:bg-[#163E32] selection:text-[#FAF7F2]">
-        <AppProvider>{children}</AppProvider>
+      <body className="min-h-full flex flex-col bg-[#FAF6EB] text-[#072847] font-sans selection:bg-[#072847] selection:text-[#FFF2BA]">
+        <AppProvider>
+          {children}
+          <EvaluatorBar />
+        </AppProvider>
       </body>
     </html>
   );
