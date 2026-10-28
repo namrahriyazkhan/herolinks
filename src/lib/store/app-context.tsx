@@ -134,7 +134,7 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-const LOCAL_STORAGE_KEY = "digital_heroes_app_state_v1";
+const LOCAL_STORAGE_KEY = "digital_heroes_app_state_v2";
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   // Users
@@ -701,7 +701,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       }
     }
     setAllUsers(DEMO_USERS);
-    setCurrentUser(DEMO_USERS[0]);
+    setCurrentUser(null);
     setAllScores(INITIAL_SCORES);
     setCharities(INITIAL_CHARITIES);
     setDraws(INITIAL_DRAWS);
