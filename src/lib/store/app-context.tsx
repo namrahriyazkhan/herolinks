@@ -442,6 +442,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const updatedTier = tier || currentUser.subscription_tier || "monthly";
 
     setCurrentUser((prev) => {
+      if (!prev) return null;
       const up: UserProfile = {
         ...prev,
         subscription_status: "active",
@@ -461,7 +462,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       users.map((u) => (u.id === userId ? { ...u, ...updates } : u))
     );
     if (currentUser?.id === userId) {
-      setCurrentUser((prev) => ({ ...prev, ...updates }));
+      setCurrentUser((prev) => (prev ? { ...prev, ...updates } : null));
     }
   };
 
@@ -477,7 +478,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
     const newDonation: Donation = {
       id: `don-${Date.now()}`,
-      user_id: currentUser.id,
+      user_id: currentUser ? currentUser.id : "guest",
       charity_id: params.charityId,
       charity_name: targetCharity.name,
       amount: params.amount,
@@ -620,6 +621,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     golfPlatform: "HowDidiDo" | "GHIN" | "Golf Ireland" | "England Golf" | "Other Club App";
     proofImageUrl: string;
   }) => {
+    if (!currentUser) return;
     const existingIndex = verifications.findIndex(
       (v) => v.draw_entry_id === params.drawEntryId
     );
