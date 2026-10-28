@@ -139,7 +139,7 @@ const LOCAL_STORAGE_KEY = "digital_heroes_app_state_v1";
 export function AppProvider({ children }: { children: React.ReactNode }) {
   // Users
   const [allUsers, setAllUsers] = useState<UserProfile[]>(DEMO_USERS);
-  const [currentUser, setCurrentUser] = useState<UserProfile>(DEMO_USERS[0]); // Marcus Vance (Golfer)
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(null); // Default to Public Visitor (Requires Login/Signup)
 
   // Scores
   const [allScores, setAllScores] = useState<GolfScore[]>(INITIAL_SCORES);
@@ -304,8 +304,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = () => {
-    // switch to first demo golfer
-    setCurrentUser(DEMO_USERS[0]);
+    setCurrentUser(null);
   };
 
   // 2. Score Management (§ 05 & § 04 Access Control)
