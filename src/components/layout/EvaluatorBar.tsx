@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useApp } from "@/lib/store/app-context";
@@ -23,6 +23,11 @@ export function EvaluatorBar() {
   const { currentUser, switchUserRole, logout, resetDemoState } = useApp();
   const [minimized, setMinimized] = useState(false);
   const [resetToast, setResetToast] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleRoleSelect = (role: "public" | "subscriber" | "admin") => {
     if (role === "public") {
@@ -44,11 +49,14 @@ export function EvaluatorBar() {
     setTimeout(() => setResetToast(false), 3000);
   };
 
+  if (!mounted) return null;
+
   const currentRole = !currentUser ? "public" : currentUser.role;
 
   return (
     <aside
       aria-label="PRD Evaluator Mode"
+      suppressHydrationWarning
       className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 max-w-5xl w-[94vw] transition-all duration-300"
     >
       <div className="bg-[#072847]/95 backdrop-blur-xl border border-[#FFF2BA]/35 rounded-2xl shadow-2xl p-2.5 sm:p-3 text-white">
@@ -67,6 +75,7 @@ export function EvaluatorBar() {
             <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto py-1 px-1">
               {/* Persona 1: Public Visitor */}
               <button
+                suppressHydrationWarning
                 onClick={() => handleRoleSelect("public")}
                 className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 ${
                   currentRole === "public"
@@ -80,6 +89,7 @@ export function EvaluatorBar() {
 
               {/* Persona 2: Registered Golfer (Marcus Vance) */}
               <button
+                suppressHydrationWarning
                 onClick={() => handleRoleSelect("subscriber")}
                 className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 ${
                   currentRole === "subscriber"
@@ -94,6 +104,7 @@ export function EvaluatorBar() {
 
               {/* Persona 3: Platform Admin (Eleanor Rostova) */}
               <button
+                suppressHydrationWarning
                 onClick={() => handleRoleSelect("admin")}
                 className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 ${
                   currentRole === "admin"
@@ -108,6 +119,7 @@ export function EvaluatorBar() {
 
               {/* Reset Data Button */}
               <button
+                suppressHydrationWarning
                 onClick={handleReset}
                 className="hidden lg:inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-red-950/60 text-white/60 hover:text-red-300 text-xs font-mono transition-colors shrink-0"
                 title="Reset all scores, simulations, and state back to default mock data"

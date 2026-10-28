@@ -34,8 +34,12 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${newsreader.variable} ${plusJakartaSans.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-[#FAF6EB] text-[#072847] font-sans selection:bg-[#072847] selection:text-[#FFF2BA]">
+      <body
+        className="min-h-full flex flex-col bg-[#FAF6EB] text-[#072847] font-sans selection:bg-[#072847] selection:text-[#FFF2BA]"
+        suppressHydrationWarning
+      >
         <AppProvider>
           {children}
           <EvaluatorBar />
