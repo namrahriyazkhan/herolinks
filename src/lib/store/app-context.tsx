@@ -159,6 +159,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   // Stats
   const [stats, setStats] = useState<PlatformStats>(INITIAL_PLATFORM_STATS);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   // Load from localStorage if present
   useEffect(() => {
@@ -166,9 +167,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed.allUsers) setAllUsers(parsed.allUsers);
+        if (parsed.allUsers && Array.isArray(parsed.allUsers) && parsed.allUsers.length > 0) {
+          setAllUsers(parsed.allUsers);
+        }
         if (parsed.currentUserId) {
-          const user = parsed.allUsers?.find(
+          const userList = (parsed.allUsers && Array.isArray(parsed.allUsers)) ? parsed.allUsers : DEMO_USERS;
+          const user = userList.find(
             (u: UserProfile) => u.id === parsed.currentUserId
           );
           if (user) setCurrentUser(user);
@@ -181,11 +185,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       }
     } catch {
       // ignore
+    } finally {
+      setIsLoaded(true);
     }
   }, []);
 
-  // Save changes to localStorage
+  // Save changes to localStorage only AFTER initial mount has loaded
   useEffect(() => {
+    if (!isLoaded) return;
     try {
       const payload = {
         allUsers,
@@ -200,7 +207,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // ignore
     }
-  }, [allUsers, currentUser, allScores, charities, draws, verifications, donations]);
+  }, [isLoaded, allUsers, currentUser, allScores, charities, draws, verifications, donations]);
 
   // Derived user scores (sorted reverse chronological)
   const userScores = currentUser
