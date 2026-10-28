@@ -181,26 +181,47 @@ ALTER TABLE public.winner_verifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.donations ENABLE ROW LEVEL SECURITY;
 
 -- Charities: Everyone can read, only admin can insert/update/delete
+DROP POLICY IF EXISTS "Public charities are viewable by everyone" ON public.charities;
 CREATE POLICY "Public charities are viewable by everyone" ON public.charities FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Admin can modify charities" ON public.charities;
 CREATE POLICY "Admin can modify charities" ON public.charities FOR ALL USING (
   EXISTS (SELECT 1 FROM public.profiles WHERE profiles.id = auth.uid() AND profiles.role = 'admin')
 );
 
 -- Profiles: Users can view & update own, admin can view all
+DROP POLICY IF EXISTS "Users can view own profile" ON public.profiles;
 CREATE POLICY "Users can view own profile" ON public.profiles FOR SELECT USING (auth.uid() = id OR EXISTS (SELECT 1 FROM public.profiles WHERE profiles.id = auth.uid() AND profiles.role = 'admin'));
+
+DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
 CREATE POLICY "Users can update own profile" ON public.profiles FOR UPDATE USING (auth.uid() = id);
 
 -- Scores: Users can manage own scores, admin can view & edit all
+DROP POLICY IF EXISTS "Users can view own scores" ON public.golf_scores;
 CREATE POLICY "Users can view own scores" ON public.golf_scores FOR SELECT USING (auth.uid() = user_id OR EXISTS (SELECT 1 FROM public.profiles WHERE profiles.id = auth.uid() AND profiles.role = 'admin'));
+
+DROP POLICY IF EXISTS "Users can insert own scores" ON public.golf_scores;
 CREATE POLICY "Users can insert own scores" ON public.golf_scores FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can update own scores" ON public.golf_scores;
 CREATE POLICY "Users can update own scores" ON public.golf_scores FOR UPDATE USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can delete own scores" ON public.golf_scores;
 CREATE POLICY "Users can delete own scores" ON public.golf_scores FOR DELETE USING (auth.uid() = user_id);
 
 -- Draws: Published draws viewable by all, all draws viewable and manageable by admin
+DROP POLICY IF EXISTS "Published draws viewable by everyone" ON public.draws;
 CREATE POLICY "Published draws viewable by everyone" ON public.draws FOR SELECT USING (status = 'published' OR EXISTS (SELECT 1 FROM public.profiles WHERE profiles.id = auth.uid() AND profiles.role = 'admin'));
+
+DROP POLICY IF EXISTS "Admin can manage draws" ON public.draws;
 CREATE POLICY "Admin can manage draws" ON public.draws FOR ALL USING (EXISTS (SELECT 1 FROM public.profiles WHERE profiles.id = auth.uid() AND profiles.role = 'admin'));
 
 -- Winner verifications: User can view own, admin can view and update all
+DROP POLICY IF EXISTS "Users can view own winner verifications" ON public.winner_verifications;
 CREATE POLICY "Users can view own winner verifications" ON public.winner_verifications FOR SELECT USING (auth.uid() = user_id OR EXISTS (SELECT 1 FROM public.profiles WHERE profiles.id = auth.uid() AND profiles.role = 'admin'));
+
+DROP POLICY IF EXISTS "Users can submit own winner verification" ON public.winner_verifications;
 CREATE POLICY "Users can submit own winner verification" ON public.winner_verifications FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Admin can verify winners and payouts" ON public.winner_verifications;
 CREATE POLICY "Admin can verify winners and payouts" ON public.winner_verifications FOR UPDATE USING (EXISTS (SELECT 1 FROM public.profiles WHERE profiles.id = auth.uid() AND profiles.role = 'admin'));
